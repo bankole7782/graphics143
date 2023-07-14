@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"runtime"
 	"strings"
 	"time"
 
+	"github.com/bankole7782/graphics143"
 	"github.com/go-gl/gl/v4.6-core/gl" // OR: github.com/go-gl/gl/v2.1/gl
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
@@ -18,7 +18,7 @@ const (
 	fps = 10
 
 	vertexShaderSource = `
-		#version 410
+		#version 460
 		in vec3 vp;
 		void main() {
 			gl_Position = vec4(vp, 1.0);
@@ -26,10 +26,10 @@ const (
 	` + "\x00"
 
 	fragmentShaderSource = `
-		#version 410
+		#version 460
 		out vec4 frag_colour;
 		void main() {
-			frag_colour = vec4(1, 1, 1, 1.0);
+			frag_colour = vec4(0, 0, 0, 1.0);
 		}
 	` + "\x00"
 )
@@ -41,15 +41,15 @@ func main() {
 
 	// fmt.Println()
 	// fmt.Println("rect1:")
-	rect1 := RectangleToCoords(500, 500, 100, 200, 20, 20)
-	rect2 := RectangleToCoords(500, 500, 100, 200, 140, 20)
+	rect1 := graphics143.RectangleToCoords(500, 500, 100, 200, 20, 20)
+	rect2 := graphics143.RectangleToCoords(500, 500, 100, 200, 140, 20)
 	// PrintF32Arr(rect1)
 
 	runtime.LockOSThread()
 
 	window := initGlfw()
 	defer glfw.Terminate()
-	program := initOpenGL()
+	program := makeProgram()
 
 	vao := makeVao(rect1)
 	vao2 := makeVao(rect2)
@@ -74,6 +74,7 @@ func main() {
 
 func draw2(vaos []uint32, window *glfw.Window, program uint32, vertices [][]float32) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
 	gl.UseProgram(program)
 
 	for i, vao := range vaos {
@@ -102,26 +103,29 @@ func initGlfw() *glfw.Window {
 	}
 	window.MakeContextCurrent()
 
-	return window
-}
-
-// initOpenGL initializes OpenGL and returns an intiialized program.
-func initOpenGL() uint32 {
 	if err := gl.Init(); err != nil {
 		panic(err)
 	}
-	version := gl.GoStr(gl.GetString(gl.VERSION))
-	log.Println("OpenGL version", version)
 
+	return window
+}
+
+func makeProgram() uint32 {
 	vertexShader, err := compileShader(vertexShaderSource, gl.VERTEX_SHADER)
 	if err != nil {
 		panic(err)
 	}
 
+	fragmentShaderSource, _ := graphics143.GetColorShader("#805F5F")
+	fmt.Println(fragmentShaderSource)
 	fragmentShader, err := compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
 	if err != nil {
 		panic(err)
 	}
+	// fragmentShader, err := compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	prog := gl.CreateProgram()
 	gl.AttachShader(prog, vertexShader)

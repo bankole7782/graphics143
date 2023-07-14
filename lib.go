@@ -1,8 +1,11 @@
-package main
+package graphics143
 
 import (
 	"fmt"
 	"math"
+
+	"github.com/lucasb-eyer/go-colorful"
+	"github.com/pkg/errors"
 )
 
 func RectangleToCoords(spaceWidth, spaceHeight, rectWidth, rectHeight, originX, originY int) []float32 {
@@ -49,4 +52,28 @@ func PrintF32Arr(arr []float32) {
 			fmt.Println()
 		}
 	}
+}
+
+func GetColorShader(hexColor string) (string, error) {
+
+	c, err := colorful.Hex(hexColor)
+	if err != nil {
+		return "", errors.Wrap(err, "colorful error")
+	}
+
+	r, g, b, a := c.RGBA()
+	rNormalized := float32(r) / 65535.0
+	gNormalized := float32(g) / 65535.0
+	bNormalized := float32(b) / 65535.0
+	aNormalized := float32(a) / 65535.0
+
+	fragmentShaderSource := fmt.Sprintf(`
+		#version 460
+		out vec4 frag_colour;
+		void main() {
+			frag_colour = vec4(%f, %f, %f, %f);
+		}
+	`, rNormalized, gNormalized, bNormalized, aNormalized)
+
+	return fragmentShaderSource + "\x00", nil
 }
