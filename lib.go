@@ -37,14 +37,15 @@ func RectangleToCoords(spaceWidth, spaceHeight int, rectSpec RectSpecs) []float3
 func GetBorderRectangles(rectSpec RectSpecs, borderDepth int) []RectSpecs {
 	retRectSpecs := make([]RectSpecs, 0)
 	// first rectangle
-	border1 := RectSpecs{borderDepth, rectSpec.Height + (2 * borderDepth), rectSpec.OriginX - borderDepth, rectSpec.OriginY - borderDepth}
+	border1 := RectSpecs{borderDepth, rectSpec.Height, rectSpec.OriginX, rectSpec.OriginY}
 	// second rectangle
-	border2 := RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.OriginY - borderDepth}
+	border2 := RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.OriginY}
 	// third rectangle
-	border3 := RectSpecs{borderDepth, rectSpec.Height + (2 * borderDepth), rectSpec.OriginX + rectSpec.Width, rectSpec.OriginY - borderDepth}
-	// fourth rectangle
-	border4 := RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.Height + rectSpec.OriginY}
+	border3 := RectSpecs{borderDepth, rectSpec.Height, rectSpec.OriginX + rectSpec.Width - borderDepth, rectSpec.OriginY}
+	// // fourth rectangle
+	border4 := RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.OriginY + rectSpec.Height - borderDepth}
 	retRectSpecs = append(retRectSpecs, border1, border2, border3, border4)
+
 	return retRectSpecs
 }
 
