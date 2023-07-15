@@ -11,3 +11,12 @@ type ShaderDef struct {
 	Source     string
 	ShaderType uint32
 }
+
+type BorderSide int
+
+const (
+	TOP BorderSide = iota
+	LEFT
+	BOTTOM
+	RIGHT
+)

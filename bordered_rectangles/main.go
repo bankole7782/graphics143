@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"runtime"
 	"time"
 
@@ -28,7 +29,7 @@ func main() {
 
 	runtime.LockOSThread()
 
-	window := g143.NewWindow(width, height, "two rectangles")
+	window := g143.NewWindow(width, height, "two bordered rectangles")
 
 	if err := gl.Init(); err != nil {
 		panic(err)
@@ -51,7 +52,7 @@ func main() {
 		{Source: borderFragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},
 	}
 	borderRectProgram := g143.MakeProgram(borderRectShaders)
-	borderRectsSpecs := g143.GetBorderRectangles(rect1Specs, 9)
+	borderRectsSpecs := g143.GetBorderRectangles(rect1Specs, 10)
 	borderVaos := make([]uint32, 0)
 	borderVbos := make([][]float32, 0)
 
@@ -62,16 +63,30 @@ func main() {
 		borderVaos = append(borderVaos, rectVAO)
 	}
 
-	// vao2 := g143.MakeVao(rect2)
+	// bordered rectangle two
+	rect2Specs := g143.RectSpecs{Width: 300, Height: 200, OriginX: 100, OriginY: 300}
+	rect2Vbo := g143.RectangleToCoords(width, height, rect2Specs)
+	rect2vao := g143.MakeVao(rect2Vbo)
+
+	leftBorderSpec := g143.GetBorderSideRectangle(rect2Specs, g143.LEFT, 10)
+	fmt.Println(leftBorderSpec)
+	leftBorderVbo := g143.RectangleToCoords(width, height, leftBorderSpec)
+	leftBorderVao := g143.MakeVao(leftBorderVbo)
+
 	for !window.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.ClearColor(1.0, 1.0, 1.0, 1.0)
 
 		t := time.Now()
-		// draw main rectangle
+		// draw first rectangle
 		draw([]uint32{vao1}, window, mainRectProgram, [][]float32{rect1})
-		// draw borders
+		// draw first rectangles borders
 		draw(borderVaos, window, borderRectProgram, borderVbos)
+
+		// draw second rectangle
+		draw([]uint32{rect2vao}, window, mainRectProgram, [][]float32{rect2Vbo})
+		// draw left border
+		draw([]uint32{leftBorderVao}, window, borderRectProgram, [][]float32{leftBorderVbo})
 
 		glfw.PollEvents()
 		window.SwapBuffers()

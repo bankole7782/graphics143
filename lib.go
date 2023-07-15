@@ -49,6 +49,18 @@ func GetBorderRectangles(rectSpec RectSpecs, borderDepth int) []RectSpecs {
 	return retRectSpecs
 }
 
+func GetBorderSideRectangle(rectSpec RectSpecs, borderSide BorderSide, borderDepth int) RectSpecs {
+	if borderSide == LEFT {
+		return RectSpecs{borderDepth, rectSpec.Height, rectSpec.OriginX, rectSpec.OriginY}
+	} else if borderSide == TOP {
+		return RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.OriginY}
+	} else if borderSide == RIGHT {
+		return RectSpecs{borderDepth, rectSpec.Height, rectSpec.OriginX + rectSpec.Width - borderDepth, rectSpec.OriginY}
+	} else {
+		return RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.OriginY + rectSpec.Height - borderDepth}
+	}
+}
+
 func XtoFloat(x, width int) float32 {
 	return float32(2.0)*(float32(x)/float32(width)) - float32(1.0)
 }
