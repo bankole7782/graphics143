@@ -37,13 +37,18 @@ func main() {
 		panic(err)
 	}
 
-	program := makeProgram()
+	fragmentShaderSource, _ := g143.GetColorShader("#7B4747")
+	mainRectShaders := []g143.ShaderDef{
+		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
+		{Source: fragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},
+	}
+	mainRectProgram := g143.MakeProgram(mainRectShaders)
 
 	vao := g143.MakeVao(rect1)
 	vao2 := g143.MakeVao(rect2)
 	for !window.ShouldClose() {
 		t := time.Now()
-		draw([]uint32{vao, vao2}, window, program, [][]float32{rect1, rect2})
+		draw([]uint32{vao, vao2}, window, mainRectProgram, [][]float32{rect1, rect2})
 		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
 	}
 }
@@ -60,23 +65,4 @@ func draw(vaos []uint32, window *glfw.Window, program uint32, vertices [][]float
 
 	glfw.PollEvents()
 	window.SwapBuffers()
-}
-
-func makeProgram() uint32 {
-	vertexShader, err := g143.CompileShader(vertexShaderSource, gl.VERTEX_SHADER)
-	if err != nil {
-		panic(err)
-	}
-
-	fragmentShaderSource, _ := g143.GetColorShader("#805F5F")
-	fragmentShader, err := g143.CompileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
-	if err != nil {
-		panic(err)
-	}
-
-	prog := gl.CreateProgram()
-	gl.AttachShader(prog, vertexShader)
-	gl.AttachShader(prog, fragmentShader)
-	gl.LinkProgram(prog)
-	return prog
 }
