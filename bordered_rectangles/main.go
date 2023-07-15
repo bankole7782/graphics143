@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"runtime"
 	"time"
 
@@ -69,7 +68,6 @@ func main() {
 	rect2vao := g143.MakeVao(rect2Vbo)
 
 	leftBorderSpec := g143.GetBorderSideRectangle(rect2Specs, g143.LEFT, 10)
-	fmt.Println(leftBorderSpec)
 	leftBorderVbo := g143.RectangleToCoords(width, height, leftBorderSpec)
 	leftBorderVao := g143.MakeVao(leftBorderVbo)
 

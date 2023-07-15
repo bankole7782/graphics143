@@ -35,18 +35,11 @@ func RectangleToCoords(spaceWidth, spaceHeight int, rectSpec RectSpecs) []float3
 }
 
 func GetBorderRectangles(rectSpec RectSpecs, borderDepth int) []RectSpecs {
-	retRectSpecs := make([]RectSpecs, 0)
-	// first rectangle
-	border1 := RectSpecs{borderDepth, rectSpec.Height, rectSpec.OriginX, rectSpec.OriginY}
-	// second rectangle
-	border2 := RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.OriginY}
-	// third rectangle
-	border3 := RectSpecs{borderDepth, rectSpec.Height, rectSpec.OriginX + rectSpec.Width - borderDepth, rectSpec.OriginY}
-	// // fourth rectangle
-	border4 := RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.OriginY + rectSpec.Height - borderDepth}
-	retRectSpecs = append(retRectSpecs, border1, border2, border3, border4)
-
-	return retRectSpecs
+	border1 := GetBorderSideRectangle(rectSpec, LEFT, borderDepth)
+	border2 := GetBorderSideRectangle(rectSpec, TOP, borderDepth)
+	border3 := GetBorderSideRectangle(rectSpec, RIGHT, borderDepth)
+	border4 := GetBorderSideRectangle(rectSpec, BOTTOM, borderDepth)
+	return []RectSpecs{border1, border2, border3, border4}
 }
 
 func GetBorderSideRectangle(rectSpec RectSpecs, borderSide BorderSide, borderDepth int) RectSpecs {
