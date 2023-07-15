@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/pkg/errors"
 )
@@ -76,4 +77,24 @@ func GetColorShader(hexColor string) (string, error) {
 	`, rNormalized, gNormalized, bNormalized, aNormalized)
 
 	return fragmentShaderSource + "\x00", nil
+}
+
+// initGlfw initializes glfw and returns a Window to use.
+func NewWindow(width, height int, title string) *glfw.Window {
+	if err := glfw.Init(); err != nil {
+		panic(err)
+	}
+	glfw.WindowHint(glfw.Resizable, glfw.False)
+	glfw.WindowHint(glfw.ContextVersionMajor, 4)
+	glfw.WindowHint(glfw.ContextVersionMinor, 6)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+
+	window, err := glfw.CreateWindow(width, height, title, nil, nil)
+	if err != nil {
+		panic(err)
+	}
+	window.MakeContextCurrent()
+
+	return window
 }

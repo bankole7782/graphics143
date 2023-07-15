@@ -47,8 +47,14 @@ func main() {
 
 	runtime.LockOSThread()
 
-	window := initGlfw()
-	defer glfw.Terminate()
+	// window := initGlfw()
+	window := graphics143.NewWindow(width, height, "two rectangles")
+
+	if err := gl.Init(); err != nil {
+		panic(err)
+	}
+
+	// defer glfw.Terminate()
 	program := makeProgram()
 
 	vao := makeVao(rect1)
@@ -86,30 +92,6 @@ func draw2(vaos []uint32, window *glfw.Window, program uint32, vertices [][]floa
 	window.SwapBuffers()
 }
 
-// initGlfw initializes glfw and returns a Window to use.
-func initGlfw() *glfw.Window {
-	if err := glfw.Init(); err != nil {
-		panic(err)
-	}
-	glfw.WindowHint(glfw.Resizable, glfw.False)
-	glfw.WindowHint(glfw.ContextVersionMajor, 4)
-	glfw.WindowHint(glfw.ContextVersionMinor, 6)
-	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-
-	window, err := glfw.CreateWindow(width, height, "Conway's Game of Life", nil, nil)
-	if err != nil {
-		panic(err)
-	}
-	window.MakeContextCurrent()
-
-	if err := gl.Init(); err != nil {
-		panic(err)
-	}
-
-	return window
-}
-
 func makeProgram() uint32 {
 	vertexShader, err := compileShader(vertexShaderSource, gl.VERTEX_SHADER)
 	if err != nil {
@@ -117,7 +99,6 @@ func makeProgram() uint32 {
 	}
 
 	fragmentShaderSource, _ := graphics143.GetColorShader("#805F5F")
-	fmt.Println(fragmentShaderSource)
 	fragmentShader, err := compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
 	if err != nil {
 		panic(err)
