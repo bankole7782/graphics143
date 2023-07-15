@@ -26,8 +26,8 @@ const (
 
 func main() {
 
-	rect1 := g143.RectangleToCoords(500, 500, 100, 200, 20, 20)
-	rect2 := g143.RectangleToCoords(500, 500, 100, 200, 140, 20)
+	rect1 := g143.RectangleToCoords(width, height, g143.RectSpecs{Width: 100, Height: 200, OriginX: 20, OriginY: 20})
+	rect2 := g143.RectangleToCoords(width, height, g143.RectSpecs{Width: 100, Height: 200, OriginX: 140, OriginY: 20})
 
 	runtime.LockOSThread()
 

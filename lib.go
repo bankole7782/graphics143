@@ -11,13 +11,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-func RectangleToCoords(spaceWidth, spaceHeight, rectWidth, rectHeight, originX, originY int) []float32 {
+func RectangleToCoords(spaceWidth, spaceHeight int, rectSpec RectSpecs) []float32 {
 
-	point1X := XtoFloat(originX, spaceWidth)
-	point1Y := YtoFloat(originY, spaceHeight)
+	point1X := XtoFloat(rectSpec.OriginX, spaceWidth)
+	point1Y := YtoFloat(rectSpec.OriginY, spaceHeight)
 
-	point2X := XtoFloat(originX+rectWidth, spaceWidth)
-	point2Y := YtoFloat(originY+rectHeight, spaceHeight)
+	point2X := XtoFloat(rectSpec.OriginX+rectSpec.Width, spaceWidth)
+	point2Y := YtoFloat(rectSpec.OriginY+rectSpec.Height, spaceHeight)
 
 	retFloat32 := []float32{
 		// first triangle
@@ -32,6 +32,20 @@ func RectangleToCoords(spaceWidth, spaceHeight, rectWidth, rectHeight, originX, 
 	}
 
 	return retFloat32
+}
+
+func GetBorderRectangles(rectSpec RectSpecs, borderDepth int) []RectSpecs {
+	retRectSpecs := make([]RectSpecs, 0)
+	// first rectangle
+	border1 := RectSpecs{borderDepth, rectSpec.Height + (2 * borderDepth), rectSpec.OriginX - borderDepth, rectSpec.OriginY - borderDepth}
+	// second rectangle
+	border2 := RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.OriginY - borderDepth}
+	// third rectangle
+	border3 := RectSpecs{borderDepth, rectSpec.Height + (2 * borderDepth), rectSpec.OriginX + rectSpec.Width, rectSpec.OriginY - borderDepth}
+	// fourth rectangle
+	border4 := RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.Height + rectSpec.OriginY}
+	retRectSpecs = append(retRectSpecs, border1, border2, border3, border4)
+	return retRectSpecs
 }
 
 func XtoFloat(x, width int) float32 {
@@ -147,4 +161,18 @@ func CompileShader(source string, shaderType uint32) (uint32, error) {
 	}
 
 	return shader, nil
+}
+
+func MakeProgram(shaders []ShaderDef) uint32 {
+	prog := gl.CreateProgram()
+	for _, shaderSpec := range shaders {
+		shader1, err := CompileShader(shaderSpec.Source, shaderSpec.ShaderType)
+		if err != nil {
+			panic(err)
+		}
+		gl.AttachShader(prog, shader1)
+	}
+
+	gl.LinkProgram(prog)
+	return prog
 }
