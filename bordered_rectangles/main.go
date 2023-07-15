@@ -5,7 +5,7 @@ import (
 	"time"
 
 	g143 "github.com/bankole7782/graphics143"
-	"github.com/go-gl/gl/v4.6-core/gl" // OR: github.com/go-gl/gl/v2.1/gl
+	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
@@ -34,7 +34,6 @@ func main() {
 		panic(err)
 	}
 
-	// program := makeProgram()
 	fragmentShaderSource, _ := g143.GetColorShader("#D4D7BC")
 	mainRectShaders := []g143.ShaderDef{
 		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
@@ -77,14 +76,14 @@ func main() {
 
 		t := time.Now()
 		// draw first rectangle
-		draw([]uint32{vao1}, window, mainRectProgram, [][]float32{rect1})
+		draw([]uint32{vao1}, mainRectProgram, [][]float32{rect1})
 		// draw first rectangles borders
-		draw(borderVaos, window, borderRectProgram, borderVbos)
+		draw(borderVaos, borderRectProgram, borderVbos)
 
 		// draw second rectangle
-		draw([]uint32{rect2vao}, window, mainRectProgram, [][]float32{rect2Vbo})
+		draw([]uint32{rect2vao}, mainRectProgram, [][]float32{rect2Vbo})
 		// draw left border
-		draw([]uint32{leftBorderVao}, window, borderRectProgram, [][]float32{leftBorderVbo})
+		draw([]uint32{leftBorderVao}, borderRectProgram, [][]float32{leftBorderVbo})
 
 		glfw.PollEvents()
 		window.SwapBuffers()
@@ -92,7 +91,7 @@ func main() {
 	}
 }
 
-func draw(vaos []uint32, window *glfw.Window, program uint32, vertices [][]float32) {
+func draw(vaos []uint32, program uint32, vertices [][]float32) {
 
 	gl.UseProgram(program)
 
