@@ -2,7 +2,6 @@ package graphics143
 
 import (
 	"fmt"
-	"math"
 	"strings"
 
 	"github.com/go-gl/gl/v4.6-core/gl"
@@ -54,27 +53,12 @@ func GetBorderSideRectangle(rectSpec RectSpecs, borderSide BorderSide, borderDep
 	}
 }
 
-func XtoFloat(x, width int) float32 {
-	return float32(2.0)*(float32(x)/float32(width)) - float32(1.0)
+func XtoFloat(x, windowWidth int) float32 {
+	return float32(2.0)*(float32(x)/float32(windowWidth)) - float32(1.0)
 }
 
-func YtoFloat(y, height int) float32 {
-	return float32(1.0) - float32(2.0)*float32(y)/float32(height)
-}
-
-func PrintF32Arr(arr []float32) {
-	rem := math.Mod(float64(len(arr)), 3.0)
-	if int(rem) != 0 {
-		panic("supplied array is not a multiple of 3")
-	}
-
-	for i := 0; i < len(arr)/3; i++ {
-		fmt.Println(arr[i], arr[i+1], arr[i+2])
-		rem := math.Mod(float64(i)+1, float64(3))
-		if int(rem) == 0 {
-			fmt.Println()
-		}
-	}
+func YtoFloat(y, windowHeight int) float32 {
+	return float32(1.0) - float32(2.0)*float32(y)/float32(windowHeight)
 }
 
 func GetColorShader(hexColor string) (string, error) {
