@@ -34,7 +34,7 @@ func main() {
 		panic(err)
 	}
 
-	fragmentShaderSource, _ := g143.GetColorShader("#D4D7BC")
+	fragmentShaderSource, _ := g143.GetRectColorShader("#D4D7BC")
 	mainRectShaders := []g143.ShaderDef{
 		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
 		{Source: fragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},
@@ -44,7 +44,7 @@ func main() {
 	rect1 := g143.RectangleToCoords(width, height, rect1Specs)
 	vao1 := g143.MakeVao(rect1)
 
-	borderFragmentShaderSource, _ := g143.GetColorShader("#61636A")
+	borderFragmentShaderSource, _ := g143.GetRectColorShader("#61636A")
 	borderRectShaders := []g143.ShaderDef{
 		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
 		{Source: borderFragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},

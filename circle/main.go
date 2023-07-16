@@ -54,13 +54,13 @@ func main() {
 	// vertices := CircleCoords(width, height, 0, 0, 100)
 	// vertices2 := CircleCoords(width, height, 0, 0, 110)
 
-	fragmentShaderSource, _ := g143.GetColorShader("#BB97B7")
+	fragmentShaderSource, _ := g143.GetRectColorShader("#BB97B7")
 	circleShaders1 := []g143.ShaderDef{
 		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
 		{Source: fragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},
 	}
 	circleProgram1 := g143.MakeProgram(circleShaders1)
-	fragmentShaderSource2, _ := g143.GetColorShader("#855980")
+	fragmentShaderSource2, _ := g143.GetRectColorShader("#855980")
 
 	circleShaders2 := []g143.ShaderDef{
 		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
