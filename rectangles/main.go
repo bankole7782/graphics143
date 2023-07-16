@@ -26,16 +26,33 @@ const (
 
 func main() {
 
-	rect1 := g143.RectangleToCoords(width, height, g143.RectSpecs{Width: 100, Height: 200, OriginX: 20, OriginY: 20})
-	rect2 := g143.RectangleToCoords(width, height, g143.RectSpecs{Width: 100, Height: 200, OriginX: 140, OriginY: 20})
-
 	runtime.LockOSThread()
 
-	window := g143.NewWindow(width, height, "two rectangles")
-
+	window := g143.NewWindow(width, height, "two rectangles", true)
+	window.SetFramebufferSizeCallback(frameBufferSizeCallback)
 	if err := gl.Init(); err != nil {
 		panic(err)
 	}
+
+	for !window.ShouldClose() {
+		t := time.Now()
+
+		allDraws(window)
+		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
+	}
+}
+
+func frameBufferSizeCallback(w *glfw.Window, width int, height int) {
+	gl.Viewport(0, 0, int32(width), int32(height))
+	allDraws(w)
+}
+
+func allDraws(window *glfw.Window) {
+	wWidth, wHeight := window.GetSize()
+	rect1 := g143.RectangleToCoords(wWidth, wHeight, g143.RectSpecs{Width: 100, Height: 200, OriginX: 20, OriginY: 20})
+	rect2 := g143.RectangleToCoords(wWidth, wHeight, g143.RectSpecs{Width: 100, Height: 200, OriginX: 140, OriginY: 20})
+	vao := g143.MakeVao(rect1)
+	vao2 := g143.MakeVao(rect2)
 
 	fragmentShaderSource, _ := g143.GetColorShader("#7B4747")
 	mainRectShaders := []g143.ShaderDef{
@@ -44,13 +61,7 @@ func main() {
 	}
 	mainRectProgram := g143.MakeProgram(mainRectShaders)
 
-	vao := g143.MakeVao(rect1)
-	vao2 := g143.MakeVao(rect2)
-	for !window.ShouldClose() {
-		t := time.Now()
-		draw([]uint32{vao, vao2}, window, mainRectProgram, [][]float32{rect1, rect2})
-		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
-	}
+	draw([]uint32{vao, vao2}, window, mainRectProgram, [][]float32{rect1, rect2})
 }
 
 func draw(vaos []uint32, window *glfw.Window, program uint32, vertices [][]float32) {

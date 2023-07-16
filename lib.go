@@ -64,7 +64,7 @@ func GetBorderSideRectangle(rectSpec RectSpecs, borderSide BorderSide, borderDep
 
 func CircleCoords(windowWidth, windowHeight, originX, originY, radius int) []float32 {
 	twicePi := 2 * math.Pi
-	triangleAmount := 120
+	triangleAmount := 128
 
 	radiusX := float64(radius) / float64(windowWidth)
 	originXf32 := XtoFloat(originX, windowWidth)
@@ -106,11 +106,15 @@ func GetColorShader(hexColor string) (string, error) {
 }
 
 // initGlfw initializes glfw and returns a Window to use.
-func NewWindow(width, height int, title string) *glfw.Window {
+func NewWindow(width, height int, title string, resizable bool) *glfw.Window {
 	if err := glfw.Init(); err != nil {
 		panic(err)
 	}
-	glfw.WindowHint(glfw.Resizable, glfw.False)
+	if resizable {
+		glfw.WindowHint(glfw.Resizable, glfw.True)
+	} else {
+		glfw.WindowHint(glfw.Resizable, glfw.False)
+	}
 	glfw.WindowHint(glfw.ContextVersionMajor, 4)
 	glfw.WindowHint(glfw.ContextVersionMinor, 6)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)

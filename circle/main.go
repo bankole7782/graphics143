@@ -28,7 +28,7 @@ func main() {
 
 	runtime.LockOSThread()
 
-	window := g143.NewWindow(width, height, "a circle")
+	window := g143.NewWindow(width, height, "a circle", false)
 
 	if err := gl.Init(); err != nil {
 		panic(err)

@@ -28,7 +28,7 @@ func main() {
 
 	runtime.LockOSThread()
 
-	window := g143.NewWindow(width, height, "two bordered rectangles")
+	window := g143.NewWindow(width, height, "two bordered rectangles", false)
 
 	if err := gl.Init(); err != nil {
 		panic(err)
