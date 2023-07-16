@@ -1,7 +1,6 @@
 package main
 
 import (
-	"math"
 	"runtime"
 	"time"
 
@@ -25,8 +24,6 @@ const (
 	` + "\x00"
 )
 
-// func circleCoords()
-
 func main() {
 
 	runtime.LockOSThread()
@@ -37,29 +34,42 @@ func main() {
 		panic(err)
 	}
 
-	// x := float32(0.3)
-	// y := float32(0.3)
-	radius := float32(.2)
-	triangleAmount := 40
+	// originX := float32(0.3)
+	// originY := float32(0.3)
+	// radius := float32(.3)
+	// triangleAmount := 120
 
-	twicePi := 2 * math.Pi
+	// twicePi := 2 * math.Pi
 
-	vertices := make([]float32, 0)
-	// vertices = append(vertices, x, y, 0)
-	for i := 0; i < triangleAmount; i++ {
-		x := radius * float32(math.Cos(float64(i)*twicePi/float64(triangleAmount)))
-		y := radius * float32(math.Sin(float64(i)*twicePi/float64(triangleAmount)))
-		vertices = append(vertices, x, y, 0)
-	}
+	// vertices := make([]float32, 0)
+	// // vertices = append(vertices, originX, originY, 0)
+	// for i := 0; i < triangleAmount; i++ {
+	// 	x := originX + (radius * float32(math.Cos(float64(i)*twicePi/float64(triangleAmount))))
+	// 	y := originY + (radius * float32(math.Sin(float64(i)*twicePi/float64(triangleAmount))))
+	// 	vertices = append(vertices, x, y, 0)
+	// }
 
-	fragmentShaderSource, _ := g143.GetColorShader("#000000")
-	circleShaders := []g143.ShaderDef{
+	vertices := g143.CircleCoords(width, height, width/2, height/2, 100)
+	vertices2 := g143.CircleCoords(width, height, width/2, height/2, 110)
+	// vertices := CircleCoords(width, height, 0, 0, 100)
+	// vertices2 := CircleCoords(width, height, 0, 0, 110)
+
+	fragmentShaderSource, _ := g143.GetColorShader("#BB97B7")
+	circleShaders1 := []g143.ShaderDef{
 		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
 		{Source: fragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},
 	}
-	circleProgram := g143.MakeProgram(circleShaders)
+	circleProgram1 := g143.MakeProgram(circleShaders1)
+	fragmentShaderSource2, _ := g143.GetColorShader("#855980")
+
+	circleShaders2 := []g143.ShaderDef{
+		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
+		{Source: fragmentShaderSource2, ShaderType: gl.FRAGMENT_SHADER},
+	}
+	circleProgram2 := g143.MakeProgram(circleShaders2)
 
 	vao := g143.MakeVao(vertices)
+	vao2 := g143.MakeVao(vertices2)
 
 	for !window.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -67,7 +77,9 @@ func main() {
 
 		t := time.Now()
 
-		drawCircle(vao, circleProgram, vertices)
+		drawCircle(vao2, circleProgram2, vertices2)
+		drawCircle(vao, circleProgram1, vertices)
+
 		glfw.PollEvents()
 		window.SwapBuffers()
 		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
@@ -75,7 +87,6 @@ func main() {
 }
 
 func drawCircle(vao uint32, program uint32, vertices []float32) {
-	gl.EnableVertexAttribArray(0)
 	gl.UseProgram(program)
 
 	gl.BindVertexArray(vao)

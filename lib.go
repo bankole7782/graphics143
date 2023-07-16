@@ -2,6 +2,7 @@ package graphics143
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/go-gl/gl/v4.6-core/gl"
@@ -10,13 +11,21 @@ import (
 	"github.com/pkg/errors"
 )
 
-func RectangleToCoords(spaceWidth, spaceHeight int, rectSpec RectSpecs) []float32 {
+func XtoFloat(x, windowWidth int) float32 {
+	return float32(2.0)*(float32(x)/float32(windowWidth)) - float32(1.0)
+}
 
-	point1X := XtoFloat(rectSpec.OriginX, spaceWidth)
-	point1Y := YtoFloat(rectSpec.OriginY, spaceHeight)
+func YtoFloat(y, windowHeight int) float32 {
+	return float32(1.0) - (float32(2.0) * float32(y) / float32(windowHeight))
+}
 
-	point2X := XtoFloat(rectSpec.OriginX+rectSpec.Width, spaceWidth)
-	point2Y := YtoFloat(rectSpec.OriginY+rectSpec.Height, spaceHeight)
+func RectangleToCoords(windowWidth, windowHeight int, rectSpec RectSpecs) []float32 {
+
+	point1X := XtoFloat(rectSpec.OriginX, windowWidth)
+	point1Y := YtoFloat(rectSpec.OriginY, windowHeight)
+
+	point2X := XtoFloat(rectSpec.OriginX+rectSpec.Width, windowWidth)
+	point2Y := YtoFloat(rectSpec.OriginY+rectSpec.Height, windowHeight)
 
 	retFloat32 := []float32{
 		// first triangle
@@ -53,12 +62,23 @@ func GetBorderSideRectangle(rectSpec RectSpecs, borderSide BorderSide, borderDep
 	}
 }
 
-func XtoFloat(x, windowWidth int) float32 {
-	return float32(2.0)*(float32(x)/float32(windowWidth)) - float32(1.0)
-}
+func CircleCoords(windowWidth, windowHeight, originX, originY, radius int) []float32 {
+	twicePi := 2 * math.Pi
+	triangleAmount := 120
 
-func YtoFloat(y, windowHeight int) float32 {
-	return float32(1.0) - float32(2.0)*float32(y)/float32(windowHeight)
+	radiusX := float64(radius) / float64(windowWidth)
+	originXf32 := XtoFloat(originX, windowWidth)
+	originYf32 := YtoFloat(originY, windowHeight)
+
+	vertices := make([]float32, 0)
+	// vertices = append(vertices, originX, originY, 0)
+	for i := 0; i < triangleAmount; i++ {
+		x := originXf32 + float32(radiusX*math.Cos(float64(i)*twicePi/float64(triangleAmount)))
+		y := originYf32 + float32(radiusX*math.Sin(float64(i)*twicePi/float64(triangleAmount)))
+		vertices = append(vertices, x, y, 0)
+	}
+
+	return vertices
 }
 
 func GetColorShader(hexColor string) (string, error) {
