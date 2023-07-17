@@ -1,2 +1,6 @@
 # graphics143
-basic opengl programs (incomplete)
+build your own widgets (incomplete)
+
+
+## Notes
+Each drawn object needs its own opengl program
