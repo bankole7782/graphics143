@@ -10,11 +10,44 @@ import (
 
 const (
 	BasicVertexShaderSource = `
-	#version 460
-	in vec3 vp;
-	void main() {
-		gl_Position = vec4(vp, 1.0);
-	}
+		#version 460
+		in vec3 vp;
+		void main() {
+			gl_Position = vec4(vp, 1.0);
+		}
+	` + "\x00"
+
+	TextureVertexShaderSrc = `
+		#version 460
+
+		layout (location = 0) in vec3 aPos;
+		layout (location = 1) in vec3 aColor;
+		layout (location = 2) in vec2 aTexCoord;
+		
+		out vec3 ourColor;
+		out vec2 TexCoord;
+		
+		void main()
+		{
+				gl_Position = vec4(aPos, 1.0);
+				ourColor = aColor;
+				TexCoord = aTexCoord;
+		}	
+		` + "\x00"
+
+	TextureFragmentShaderSrc = `
+		#version 460 core
+		in vec2 TexCoord;
+
+		out vec4 color;
+
+		uniform sampler2D ourTexture0;
+
+		void main()
+		{
+			// mix the two textures together (texture1 is colored with "ourColor")
+			color = texture(ourTexture0, TexCoord);
+		}
 	` + "\x00"
 )
 
@@ -84,4 +117,8 @@ func GetPointShader(hexColor string) (string, error) {
 	`, rf, gf, bf, af)
 
 	return circlePointFragmentSource + "\x00", nil
+}
+
+func GetUniformLocation(openglProgram uint32, name string) int32 {
+	return gl.GetUniformLocation(openglProgram, gl.Str(name+"\x00"))
 }

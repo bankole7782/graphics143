@@ -43,8 +43,8 @@ func allDraws(window *glfw.Window) {
 	wWidth, wHeight := window.GetSize()
 	rect1 := g143.RectangleToCoords(wWidth, wHeight, g143.RectSpecs{Width: 100, Height: 200, OriginX: 20, OriginY: 20})
 	rect2 := g143.RectangleToCoords(wWidth, wHeight, g143.RectSpecs{Width: 100, Height: 200, OriginX: 140, OriginY: 20})
-	vao := g143.MakeVao(rect1)
-	vao2 := g143.MakeVao(rect2)
+	vao := makeVao(rect1)
+	vao2 := makeVao(rect2)
 
 	fragmentShaderSource, _ := g143.GetRectColorShader("#7B4747")
 	mainRectShaders := []g143.ShaderDef{
@@ -68,4 +68,21 @@ func draw(vaos []uint32, window *glfw.Window, program uint32, vertices [][]float
 
 	glfw.PollEvents()
 	window.SwapBuffers()
+}
+
+// makeVao initializes and returns a vertex array from the points provided.
+func makeVao(points []float32) uint32 {
+	var vbo uint32
+	gl.GenBuffers(1, &vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*len(points), gl.Ptr(points), gl.STATIC_DRAW)
+
+	var vao uint32
+	gl.GenVertexArrays(1, &vao)
+	gl.BindVertexArray(vao)
+	gl.EnableVertexAttribArray(0)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+
+	return vao
 }

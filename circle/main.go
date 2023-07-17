@@ -47,7 +47,7 @@ func allDraws(window *glfw.Window) {
 	wWidth, wHeight := window.GetSize()
 
 	pointVertices := []float32{g143.XtoFloat(100, wWidth), g143.YtoFloat(100, wHeight), 0}
-	pvVao := g143.MakeVao(pointVertices)
+	pvVao := makeVao(pointVertices)
 
 	pointFragmentSource, _ := g143.GetPointShader("#aaaaaa")
 	pt1Shaders := []g143.ShaderDef{
@@ -77,4 +77,21 @@ func draw(vao uint32, program uint32, vertices []float32) {
 
 	gl.BindVertexArray(vao)
 	gl.DrawArrays(gl.POINTS, 0, int32(len(vertices)/3))
+}
+
+// makeVao initializes and returns a vertex array from the points provided.
+func makeVao(points []float32) uint32 {
+	var vbo uint32
+	gl.GenBuffers(1, &vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*len(points), gl.Ptr(points), gl.STATIC_DRAW)
+
+	var vao uint32
+	gl.GenVertexArrays(1, &vao)
+	gl.BindVertexArray(vao)
+	gl.EnableVertexAttribArray(0)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+
+	return vao
 }
