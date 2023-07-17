@@ -14,14 +14,6 @@ const (
 	height = 400
 
 	fps = 10
-
-	vertexShaderSource = `
-		#version 460
-		in vec3 vp;
-		void main() {
-			gl_Position = vec4(vp, 1.0);
-		}
-	` + "\x00"
 )
 
 func main() {
@@ -59,12 +51,12 @@ func allDraws(window *glfw.Window) {
 
 	pointFragmentSource, _ := g143.GetPointShader("#aaaaaa")
 	pt1Shaders := []g143.ShaderDef{
-		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
+		{Source: g143.BasicVertexShaderSource, ShaderType: gl.VERTEX_SHADER},
 		{Source: pointFragmentSource, ShaderType: gl.FRAGMENT_SHADER},
 	}
 	pointFragmentSource2, _ := g143.GetPointShader("#666666")
 	pt2Shaders := []g143.ShaderDef{
-		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
+		{Source: g143.BasicVertexShaderSource, ShaderType: gl.VERTEX_SHADER},
 		{Source: pointFragmentSource2, ShaderType: gl.FRAGMENT_SHADER},
 	}
 	pt1Program := g143.MakeProgram(pt1Shaders)

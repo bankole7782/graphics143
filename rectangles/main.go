@@ -14,14 +14,6 @@ const (
 	height = 600
 
 	fps = 10
-
-	vertexShaderSource = `
-		#version 460
-		in vec3 vp;
-		void main() {
-			gl_Position = vec4(vp, 1.0);
-		}
-	` + "\x00"
 )
 
 func main() {
@@ -56,7 +48,7 @@ func allDraws(window *glfw.Window) {
 
 	fragmentShaderSource, _ := g143.GetRectColorShader("#7B4747")
 	mainRectShaders := []g143.ShaderDef{
-		{Source: vertexShaderSource, ShaderType: gl.VERTEX_SHADER},
+		{Source: g143.BasicVertexShaderSource, ShaderType: gl.VERTEX_SHADER},
 		{Source: fragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},
 	}
 	mainRectProgram := g143.MakeProgram(mainRectShaders)

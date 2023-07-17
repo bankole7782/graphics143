@@ -20,3 +20,9 @@ const (
 	BOTTOM
 	RIGHT
 )
+
+type Texture struct {
+	handle  uint32
+	target  uint32 // same target as gl.BindTexture(<this param>, ...)
+	texUnit uint32 // Texture unit that is currently bound to ex: gl.TEXTURE0
+}
