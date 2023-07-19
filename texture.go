@@ -7,6 +7,7 @@ import (
 	_ "image/png"
 	"os"
 
+	"github.com/disintegration/imaging"
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/pkg/errors"
 )
@@ -23,6 +24,8 @@ func NewTextureFromFile(file string, wrapR, wrapS int32) (*Texture, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	img = imaging.FlipH(img)
 	return NewTexture(img, wrapR, wrapS)
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"runtime"
 	"time"
+	"unsafe"
 
 	g143 "github.com/bankole7782/graphics143"
 	"github.com/go-gl/gl/v4.6-core/gl"
@@ -29,6 +30,9 @@ func main() {
 	for !window.ShouldClose() {
 		t := time.Now()
 
+		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+		gl.ClearColor(1.0, 1.0, 1.0, 1.0)
+
 		allDraws(window)
 		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
 	}
@@ -41,10 +45,12 @@ func frameBufferSizeCallback(w *glfw.Window, width int, height int) {
 
 func allDraws(window *glfw.Window) {
 	wWidth, wHeight := window.GetSize()
-	rect1 := g143.RectangleToCoords(wWidth, wHeight, g143.RectSpecs{Width: 100, Height: 200, OriginX: 20, OriginY: 20})
-	rect2 := g143.RectangleToCoords(wWidth, wHeight, g143.RectSpecs{Width: 100, Height: 200, OriginX: 140, OriginY: 20})
-	vao := makeVao(rect1)
-	vao2 := makeVao(rect2)
+	rect1, rect1Indices := g143.RectangleToCoords2(wWidth, wHeight, g143.RectSpecs{Width: 100, Height: 200, OriginX: 20, OriginY: 20})
+	rect2, rect2Indices := g143.RectangleToCoords2(wWidth, wHeight, g143.RectSpecs{Width: 100, Height: 200, OriginX: 140, OriginY: 20})
+	// fmt.Println(rect1)
+	// fmt.Println(rect1Indices)
+	vao := createVAO(rect1, rect1Indices)
+	// vao2 := makeVao(rect2)
 
 	fragmentShaderSource, _ := g143.GetRectColorShader("#7B4747")
 	mainRectShaders := []g143.ShaderDef{
@@ -53,36 +59,54 @@ func allDraws(window *glfw.Window) {
 	}
 	mainRectProgram := g143.MakeProgram(mainRectShaders)
 
-	draw([]uint32{vao, vao2}, window, mainRectProgram, [][]float32{rect1, rect2})
-}
+	// draw([]uint32{vao}, window, mainRectProgram, [][]float32{rect1})
+	gl.UseProgram(mainRectProgram)
+	gl.BindVertexArray(vao)
+	// gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices[i])/3))
+	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))
 
-func draw(vaos []uint32, window *glfw.Window, program uint32, vertices [][]float32) {
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
-	gl.UseProgram(program)
-
-	for i, vao := range vaos {
-		gl.BindVertexArray(vao)
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices[i])/3))
-	}
+	vao2 := createVAO(rect2, rect2Indices)
+	gl.BindVertexArray(vao2)
+	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))
 
 	glfw.PollEvents()
 	window.SwapBuffers()
 }
 
-// makeVao initializes and returns a vertex array from the points provided.
-func makeVao(points []float32) uint32 {
-	var vbo uint32
-	gl.GenBuffers(1, &vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, 4*len(points), gl.Ptr(points), gl.STATIC_DRAW)
+func createVAO(vertices []float32, indices []uint32) uint32 {
 
-	var vao uint32
-	gl.GenVertexArrays(1, &vao)
-	gl.BindVertexArray(vao)
+	var VAO uint32
+	gl.GenVertexArrays(1, &VAO)
+
+	var VBO uint32
+	gl.GenBuffers(1, &VBO)
+
+	var EBO uint32
+	gl.GenBuffers(1, &EBO)
+
+	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointers()
+	gl.BindVertexArray(VAO)
+
+	// copy vertices data into VBO (it needs to be bound first)
+	gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	// copy indices into element buffer
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
+
+	// size of one whole vertex (sum of attrib sizes)
+	// var stride int32 = 3*4 + 3*4 + 2*4
+	var stride int32 = 3 * 4
+	var offset int = 0
+
+	// position
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, stride, gl.PtrOffset(offset))
 	gl.EnableVertexAttribArray(0)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+	offset += 3 * 4
 
-	return vao
+	// unbind the VAO (safe practice so we don't accidentally (mis)configure it later)
+	gl.BindVertexArray(0)
+
+	return VAO
 }

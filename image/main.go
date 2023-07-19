@@ -61,7 +61,8 @@ func createVAO(vertices []float32, indices []uint32) uint32 {
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
 
 	// size of one whole vertex (sum of attrib sizes)
-	var stride int32 = 3*4 + 3*4 + 2*4
+	// var stride int32 = 3*4 + 3*4 + 2*4
+	var stride int32 = 3*4 + 2*4
 	var offset int = 0
 
 	// position
@@ -69,10 +70,10 @@ func createVAO(vertices []float32, indices []uint32) uint32 {
 	gl.EnableVertexAttribArray(0)
 	offset += 3 * 4
 
-	// color
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, stride, gl.PtrOffset(offset))
-	gl.EnableVertexAttribArray(1)
-	offset += 3 * 4
+	// // color
+	// gl.VertexAttribPointer(1, 3, gl.FLOAT, false, stride, gl.PtrOffset(offset))
+	// gl.EnableVertexAttribArray(1)
+	// offset += 3 * 4
 
 	// texture position
 	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, stride, gl.PtrOffset(offset))
@@ -109,35 +110,56 @@ func programLoop(window *glfw.Window) error {
 		{Source: g143.TextureFragmentShaderSrc, ShaderType: gl.FRAGMENT_SHADER},
 	}
 	shaderProgram := g143.MakeProgram(mainRectShaders)
+
+	wWidth, wHeight := window.GetSize()
+	rectSpec1 := g143.RectSpecs{Width: 300, Height: 400, OriginX: 50, OriginY: 50}
+	v1, i1 := g143.RectangleToCoords2(wWidth, wHeight, rectSpec1)
+
+	// inject texture coordinates
 	vertices := []float32{
-		// top left
-		-0.75, 0.75, 0.0, // position
-		1.0, 0.0, 0.0, // Color
-		1.0, 0.0, // texture coordinates
+		v1[0], v1[1], v1[2],
+		// 1.0, 0.0, // texture coordinates
+		1.0, 0.0,
 
-		// top right
-		0.75, 0.75, 0.0,
-		0.0, 1.0, 0.0,
-		0.0, 0.0,
+		v1[3], v1[4], v1[5],
+		1.0, 1.0,
 
-		// bottom right
-		0.75, -0.75, 0.0,
-		0.0, 0.0, 1.0,
+		v1[6], v1[7], v1[8],
 		0.0, 1.0,
 
-		// bottom left
-		-0.75, -0.75, 0.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0,
+		v1[9], v1[10], v1[11],
+		0.0, 0.0,
 	}
 
-	indices := []uint32{
-		// rectangle
-		0, 1, 2, // top triangle
-		0, 2, 3, // bottom triangle
-	}
+	// verticess := []float32{
+	// 	// top left
+	// 	-0.75, 0.75, 0.0, // position
+	// 	// 1.0, 0.0, 0.0, // Color
+	// 	1.0, 0.0, // texture coordinates
 
-	VAO := createVAO(vertices, indices)
+	// 	// top right
+	// 	0.75, 0.75, 0.0,
+	// 	// 0.0, 1.0, 0.0,
+	// 	0.0, 0.0,
+
+	// 	// bottom right
+	// 	0.75, -0.75, 0.0,
+	// 	// 0.0, 0.0, 1.0,
+	// 	0.0, 1.0,
+
+	// 	// bottom left
+	// 	-0.75, -0.75, 0.0,
+	// 	// 1.0, 1.0, 1.0,
+	// 	1.0, 1.0,
+	// }
+
+	// indices := []uint32{
+	// 	// rectangle
+	// 	0, 1, 2, // top triangle
+	// 	0, 2, 3, // bottom triangle
+	// }
+
+	VAO := createVAO(vertices, i1)
 	texture0, err := g143.NewTextureFromFile(os.Args[1], gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
 	if err != nil {
 		panic(err.Error())

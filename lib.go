@@ -13,6 +13,7 @@ func YtoFloat(y, windowHeight int) float32 {
 	return float32(1.0) - (float32(2.0) * float32(y) / float32(windowHeight))
 }
 
+// the output of this is good for gl.DrawArrays
 func RectangleToCoords(windowWidth, windowHeight int, rectSpec RectSpecs) []float32 {
 
 	point1X := XtoFloat(rectSpec.OriginX, windowWidth)
@@ -34,6 +35,42 @@ func RectangleToCoords(windowWidth, windowHeight int, rectSpec RectSpecs) []floa
 	}
 
 	return retFloat32
+}
+
+// the outputs of this is good for gl.DrawElements
+func RectangleToCoords2(windowWidth, windowHeight int, rectSpec RectSpecs) ([]float32, []uint32) {
+
+	point1X := XtoFloat(rectSpec.OriginX, windowWidth)
+	point1Y := YtoFloat(rectSpec.OriginY, windowHeight)
+
+	point2X := XtoFloat(rectSpec.OriginX+rectSpec.Width, windowWidth)
+	point2Y := YtoFloat(rectSpec.OriginY+rectSpec.Height, windowHeight)
+
+	// retFloat32 := []float32{
+	// 	// first triangle
+	// 	point1X, point1Y, 0,
+	// 	point1X, point2Y, 0,
+	// 	point2X, point2Y, 0,
+
+	// 	// second triangle
+	// 	point1X, point1Y, 0,
+	// 	point2X, point1Y, 0,
+	// 	point2X, point2Y, 0,
+	// }
+
+	retVertices := []float32{
+		point1X, point1Y, 0,
+		point1X, point2Y, 0,
+		point2X, point2Y, 0,
+		point2X, point1Y, 0,
+	}
+
+	retIndices := []uint32{
+		0, 1, 2,
+		0, 2, 3,
+	}
+
+	return retVertices, retIndices
 }
 
 func GetBorderRectangles(rectSpec RectSpecs, borderDepth int) []RectSpecs {
