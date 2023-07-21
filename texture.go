@@ -25,11 +25,12 @@ func NewTextureFromFile(file string, wrapR, wrapS int32) (*Texture, error) {
 		return nil, err
 	}
 
-	img = imaging.FlipH(img)
 	return NewTexture(img, wrapR, wrapS)
 }
 
 func NewTexture(img image.Image, wrapR, wrapS int32) (*Texture, error) {
+	img = imaging.FlipH(img)
+
 	rgba := image.NewRGBA(img.Bounds())
 	draw.Draw(rgba, rgba.Bounds(), img, image.Pt(0, 0), draw.Src)
 	if rgba.Stride != rgba.Rect.Size().X*4 {
