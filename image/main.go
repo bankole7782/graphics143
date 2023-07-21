@@ -70,14 +70,9 @@ func createVAO(vertices []float32, indices []uint32) uint32 {
 	gl.EnableVertexAttribArray(0)
 	offset += 3 * 4
 
-	// // color
-	// gl.VertexAttribPointer(1, 3, gl.FLOAT, false, stride, gl.PtrOffset(offset))
-	// gl.EnableVertexAttribArray(1)
-	// offset += 3 * 4
-
 	// texture position
-	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, stride, gl.PtrOffset(offset))
-	gl.EnableVertexAttribArray(2)
+	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, stride, gl.PtrOffset(offset))
+	gl.EnableVertexAttribArray(1)
 	offset += 2 * 4
 
 	// unbind the VAO (safe practice so we don't accidentally (mis)configure it later)
