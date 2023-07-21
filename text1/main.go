@@ -98,10 +98,13 @@ func programLoop(window *glfw.Window) error {
 		panic(err)
 	}
 
+	text := "OpenGL Text 1"
+
+	textWidth1 := g143.MeasureText(text, RobotoBytes, SIZE, DPI)
 	// Initialize the context.
-	textWidth, textHeight := 640, 480
-	// fg, bg := image.Black, image.Transparent
-	fg, bg := image.Black, image.White
+	textWidth, textHeight := textWidth1+20, 70
+	fg, bg := image.Black, image.Transparent
+	// fg, bg := image.Black, image.White
 
 	// ruler := color.RGBA{0xdd, 0xdd, 0xdd, 0xff}
 	rgba := image.NewRGBA(image.Rect(0, 0, textWidth, textHeight))
@@ -115,7 +118,6 @@ func programLoop(window *glfw.Window) error {
 	c.SetSrc(fg)
 	c.SetHinting(font.HintingFull)
 
-	text := "OpenGL Text 1"
 	// Draw the text.
 	pt := freetype.Pt(10, 10+int(c.PointToFixed(SIZE)>>6))
 	_, err = c.DrawString(text, pt)
