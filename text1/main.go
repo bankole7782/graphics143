@@ -108,7 +108,7 @@ func programLoop(window *glfw.Window) error {
 
 	// ruler := color.RGBA{0xdd, 0xdd, 0xdd, 0xff}
 	rgba := image.NewRGBA(image.Rect(0, 0, textWidth, textHeight))
-	draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
+	draw.Draw(rgba, rgba.Bounds(), bg, image.Point{}, draw.Src)
 	c := freetype.NewContext()
 	c.SetDPI(DPI)
 	c.SetFont(parsedFont)
