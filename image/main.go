@@ -87,24 +87,6 @@ func createVAO(vertices []float32, indices []uint32) uint32 {
 }
 
 func programLoop(window *glfw.Window) error {
-
-	// // the linked shader program determines how the data will be rendered
-	// vertShader, err := gfx.NewShaderFromFile("shaders/basic.vert", gl.VERTEX_SHADER)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// fragShader, err := gfx.NewShaderFromFile("shaders/basic.frag", gl.FRAGMENT_SHADER)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// shaderProgram, err := gfx.NewProgram(vertShader, fragShader)
-	// if err != nil {
-	// 	return err
-	// }
-	// defer shaderProgram.Delete()
-
 	mainRectShaders := []g143.ShaderDef{
 		{Source: g143.TextureVertexShaderSrc, ShaderType: gl.VERTEX_SHADER},
 		{Source: g143.TextureFragmentShaderSrc, ShaderType: gl.FRAGMENT_SHADER},
@@ -112,71 +94,20 @@ func programLoop(window *glfw.Window) error {
 	shaderProgram := g143.MakeProgram(mainRectShaders)
 
 	wWidth, wHeight := window.GetSize()
-	rectSpec1 := g143.RectSpecs{Width: 300, Height: 400, OriginX: 50, OriginY: 50}
-	v1, i1 := g143.RectangleToCoords2(wWidth, wHeight, rectSpec1)
+	rectSpec1 := g143.RectSpecs{Width: 400, Height: 400, OriginX: 50, OriginY: 50}
+	vertices, indices := g143.ImageCoordinates(wWidth, wHeight, rectSpec1)
 
-	// inject texture coordinates
-	vertices := []float32{
-		v1[0], v1[1], v1[2],
-		// 1.0, 0.0, // texture coordinates
-		1.0, 0.0,
-
-		v1[3], v1[4], v1[5],
-		1.0, 1.0,
-
-		v1[6], v1[7], v1[8],
-		0.0, 1.0,
-
-		v1[9], v1[10], v1[11],
-		0.0, 0.0,
-	}
-
-	// verticess := []float32{
-	// 	// top left
-	// 	-0.75, 0.75, 0.0, // position
-	// 	// 1.0, 0.0, 0.0, // Color
-	// 	1.0, 0.0, // texture coordinates
-
-	// 	// top right
-	// 	0.75, 0.75, 0.0,
-	// 	// 0.0, 1.0, 0.0,
-	// 	0.0, 0.0,
-
-	// 	// bottom right
-	// 	0.75, -0.75, 0.0,
-	// 	// 0.0, 0.0, 1.0,
-	// 	0.0, 1.0,
-
-	// 	// bottom left
-	// 	-0.75, -0.75, 0.0,
-	// 	// 1.0, 1.0, 1.0,
-	// 	1.0, 1.0,
-	// }
-
-	// indices := []uint32{
-	// 	// rectangle
-	// 	0, 1, 2, // top triangle
-	// 	0, 2, 3, // bottom triangle
-	// }
-
-	VAO := createVAO(vertices, i1)
+	VAO := createVAO(vertices, indices)
 	texture0, err := g143.NewTextureFromFile(os.Args[1], gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
 	if err != nil {
 		panic(err.Error())
 	}
-
-	// texture1, err := gfx.NewTextureFromFile("../images/trollface.png",
-	// 	gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
-	// if err != nil {
-	// 	panic(err.Error())
-	// }
 
 	for !window.ShouldClose() {
 		// poll events and call their registered callbacks
 		glfw.PollEvents()
 
 		// background color
-		// gl.ClearColor(0.2, 0.5, 0.5, 1.0)
 		gl.ClearColor(1.0, 1.0, 1.0, 1.0)
 
 		gl.Clear(gl.COLOR_BUFFER_BIT)
@@ -185,20 +116,14 @@ func programLoop(window *glfw.Window) error {
 		gl.UseProgram(shaderProgram)
 		// set texture0 to uniform0 in the fragment shader
 		texture0.Bind(gl.TEXTURE0)
-		// texture0.SetUniform(shaderProgram.GetUniformLocation("ourTexture0"))
 		uniform1 := g143.GetUniformLocation(shaderProgram, "ourTexture0")
 		texture0.SetUniform(uniform1)
-
-		// // set texture1 to uniform1 in the fragment shader
-		// texture1.Bind(gl.TEXTURE1)
-		// texture1.SetUniform(shaderProgram.GetUniformLocation("ourTexture1"))
 
 		gl.BindVertexArray(VAO)
 		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))
 		gl.BindVertexArray(0)
 
 		texture0.UnBind()
-		// texture1.UnBind()
 
 		// end of draw loop
 
