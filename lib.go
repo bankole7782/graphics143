@@ -1,6 +1,8 @@
 package graphics143
 
 import (
+	"math"
+
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
@@ -91,6 +93,25 @@ func GetBorderSideRectangle(rectSpec RectSpecs, borderSide BorderSide, borderDep
 	} else {
 		return RectSpecs{rectSpec.Width, borderDepth, rectSpec.OriginX, rectSpec.OriginY + rectSpec.Height - borderDepth}
 	}
+}
+
+func CircleCoords(windowWidth, windowHeight, originX, originY, radius int) []float32 {
+	twicePi := 2 * math.Pi
+	triangleAmount := 128
+
+	radiusX := float64(radius) / float64(windowWidth)
+	originXf32 := XtoFloat(originX, windowWidth)
+	originYf32 := YtoFloat(originY, windowHeight)
+
+	vertices := make([]float32, 0)
+	// vertices = append(vertices, originX, originY, 0)
+	for i := 0; i < triangleAmount; i++ {
+		x := originXf32 + float32(radiusX*math.Cos(float64(i)*twicePi/float64(triangleAmount)))
+		y := originYf32 + float32(radiusX*math.Sin(float64(i)*twicePi/float64(triangleAmount)))
+		vertices = append(vertices, x, y, 0)
+	}
+
+	return vertices
 }
 
 // initGlfw initializes glfw and returns a Window to use.
