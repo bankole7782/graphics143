@@ -11,17 +11,9 @@ import (
 
 const (
 	width  = 800
-	height = 600
+	height = 500
 
 	fps = 10
-
-	vertexShaderSource = `
-		#version 460
-		in vec3 vp;
-		void main() {
-			gl_Position = vec4(vp, 1.0);
-		}
-	` + "\x00"
 )
 
 func main() {
@@ -34,25 +26,8 @@ func main() {
 		panic(err)
 	}
 
-	// originX := float32(0.3)
-	// originY := float32(0.3)
-	// radius := float32(.3)
-	// triangleAmount := 120
-
-	// twicePi := 2 * math.Pi
-
-	// vertices := make([]float32, 0)
-	// // vertices = append(vertices, originX, originY, 0)
-	// for i := 0; i < triangleAmount; i++ {
-	// 	x := originX + (radius * float32(math.Cos(float64(i)*twicePi/float64(triangleAmount))))
-	// 	y := originY + (radius * float32(math.Sin(float64(i)*twicePi/float64(triangleAmount))))
-	// 	vertices = append(vertices, x, y, 0)
-	// }
-
-	vertices := g143.CircleCoords(width, height, width/2, height/2, 100)
-	vertices2 := g143.CircleCoords(width, height, width/2, height/2, 110)
-	// vertices := CircleCoords(width, height, 0, 0, 100)
-	// vertices2 := CircleCoords(width, height, 0, 0, 110)
+	vertices := g143.CircleCoords(width, height, width/2, height/2, 200)
+	vertices2 := g143.CircleCoords(width, height, width/2, height/2, 230)
 
 	fragmentShaderSource, _ := g143.GetRectColorShader("#BB97B7")
 	circleProgram1 := g143.MakeProgram(g143.BasicVertexShaderSource, fragmentShaderSource)
