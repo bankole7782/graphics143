@@ -52,7 +52,7 @@ func allDraws(window *glfw.Window) {
 
 	wWidth, wHeight := window.GetSize()
 
-	pointVertices := []float32{g143.XtoFloat(100, wWidth), g143.YtoFloat(100, wHeight), 0}
+	pointVertices := []float32{g143.XtoFloat(wWidth/2, wWidth), g143.YtoFloat(wHeight/2, wHeight), 0}
 	pvVao := makeVao(pointVertices)
 
 	pointFragmentSource, _ := g143.GetPointShader("#aaaaaa")
@@ -61,10 +61,10 @@ func allDraws(window *glfw.Window) {
 	pt1Program := g143.MakeProgram(g143.BasicVertexShaderSource, pointFragmentSource)
 	pt2Program := g143.MakeProgram(g143.BasicVertexShaderSource, pointFragmentSource2)
 
-	gl.PointSize(60)
+	gl.PointSize(250)
 	draw(pvVao, pt2Program, pointVertices)
 
-	gl.PointSize(50)
+	gl.PointSize(200)
 	draw(pvVao, pt1Program, pointVertices)
 
 	glfw.PollEvents()
