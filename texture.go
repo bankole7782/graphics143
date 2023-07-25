@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/disintegration/imaging"
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/pkg/errors"
 )
 

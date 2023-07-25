@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/lucasb-eyer/go-colorful"
 )
 
 const (
 	BasicVertexShaderSource = `
-		#version 460
+		#version 410
 		in vec3 vp;
 		void main() {
 			gl_Position = vec4(vp, 1.0);
@@ -18,7 +18,7 @@ const (
 	` + "\x00"
 
 	TextureVertexShaderSrc = `
-	#version 460
+	#version 410
 
 	layout (location = 0) in vec3 position;
 	layout (location = 1) in vec2 texCoord;
@@ -33,7 +33,7 @@ const (
 		` + "\x00"
 
 	TextureFragmentShaderSrc = `
-		#version 460 core
+		#version 410 core
 		in vec2 TexCoord;
 
 		out vec4 color;
@@ -89,7 +89,7 @@ func ConvertColorToShaderFloats(hexColor string) (float32, float32, float32, flo
 func GetRectColorShader(hexColor string) (string, error) {
 	rf, gf, bf, af := ConvertColorToShaderFloats(hexColor)
 	fragmentShaderSource := fmt.Sprintf(`
-		#version 460
+		#version 410
 		out vec4 frag_colour;
 		void main() {
 			frag_colour = vec4(%f, %f, %f, %f);
@@ -102,7 +102,7 @@ func GetRectColorShader(hexColor string) (string, error) {
 func GetPointShader(hexColor string) (string, error) {
 	rf, gf, bf, af := ConvertColorToShaderFloats(hexColor)
 	circlePointFragmentSource := fmt.Sprintf(`
-	#version 460
+	#version 410
 	out vec4 frag_colour;
 	void main() {
 		frag_colour = vec4(%f, %f, %f, %f);
