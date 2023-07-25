@@ -107,6 +107,7 @@ func NewWindow(width, height int, title string, resizable bool) *glfw.Window {
 	glfw.WindowHint(glfw.ContextVersionMinor, 6)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+	glfw.WindowHint(glfw.Samples, 4)
 
 	window, err := glfw.CreateWindow(width, height, title, nil, nil)
 	if err != nil {
@@ -125,15 +126,20 @@ func NewWindow(width, height int, title string, resizable bool) *glfw.Window {
 	return window
 }
 
-func MakeProgram(shaders []ShaderDef) uint32 {
+func MakeProgram(vertexShaderSource, fragmentShaderSource string) uint32 {
 	prog := gl.CreateProgram()
-	for _, shaderSpec := range shaders {
-		shader1, err := CompileShader(shaderSpec.Source, shaderSpec.ShaderType)
-		if err != nil {
-			panic(err)
-		}
-		gl.AttachShader(prog, shader1)
+
+	vertShader, err := CompileShader(vertexShaderSource, gl.VERTEX_SHADER)
+	if err != nil {
+		panic(err)
 	}
+	gl.AttachShader(prog, vertShader)
+
+	fragShader, err := CompileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
+	if err != nil {
+		panic(err)
+	}
+	gl.AttachShader(prog, fragShader)
 
 	gl.LinkProgram(prog)
 	return prog

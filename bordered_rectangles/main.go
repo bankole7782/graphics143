@@ -27,21 +27,13 @@ func main() {
 	}
 
 	fragmentShaderSource, _ := g143.GetRectColorShader("#D4D7BC")
-	mainRectShaders := []g143.ShaderDef{
-		{Source: g143.BasicVertexShaderSource, ShaderType: gl.VERTEX_SHADER},
-		{Source: fragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},
-	}
-	mainRectProgram := g143.MakeProgram(mainRectShaders)
+	mainRectProgram := g143.MakeProgram(g143.BasicVertexShaderSource, fragmentShaderSource)
 	rect1Specs := g143.RectSpecs{Width: 300, Height: 200, OriginX: 100, OriginY: 50}
 	rect1 := g143.RectangleToCoords(width, height, rect1Specs)
 	vao1 := makeVao(rect1)
 
 	borderFragmentShaderSource, _ := g143.GetRectColorShader("#61636A")
-	borderRectShaders := []g143.ShaderDef{
-		{Source: g143.BasicVertexShaderSource, ShaderType: gl.VERTEX_SHADER},
-		{Source: borderFragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},
-	}
-	borderRectProgram := g143.MakeProgram(borderRectShaders)
+	borderRectProgram := g143.MakeProgram(g143.BasicVertexShaderSource, borderFragmentShaderSource)
 	borderRectsSpecs := g143.GetBorderRectangles(rect1Specs, 10)
 	borderVaos := make([]uint32, 0)
 	borderVbos := make([][]float32, 0)

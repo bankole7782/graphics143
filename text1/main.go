@@ -131,11 +131,7 @@ func programLoop(window *glfw.Window) error {
 		panic(err.Error())
 	}
 
-	mainRectShaders := []g143.ShaderDef{
-		{Source: g143.TextureVertexShaderSrc, ShaderType: gl.VERTEX_SHADER},
-		{Source: g143.TextureFragmentShaderSrc, ShaderType: gl.FRAGMENT_SHADER},
-	}
-	shaderProgram := g143.MakeProgram(mainRectShaders)
+	shaderProgram := g143.MakeProgram(g143.TextureVertexShaderSrc, g143.TextureFragmentShaderSrc)
 
 	wWidth, wHeight := window.GetSize()
 	rectSpec1 := g143.RectSpecs{Width: textWidth, Height: textHeight, OriginX: 50, OriginY: 50}
@@ -148,7 +144,7 @@ func programLoop(window *glfw.Window) error {
 		glfw.PollEvents()
 
 		// background color
-		gl.ClearColor(g143.ConvertColorToShaderFloats("#D1B2B2"))
+		gl.ClearColor(g143.ConvertColorToShaderFloats("#99B49B"))
 
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 

@@ -53,11 +53,8 @@ func allDraws(window *glfw.Window) {
 	// vao2 := makeVao(rect2)
 
 	fragmentShaderSource, _ := g143.GetRectColorShader("#7B4747")
-	mainRectShaders := []g143.ShaderDef{
-		{Source: g143.BasicVertexShaderSource, ShaderType: gl.VERTEX_SHADER},
-		{Source: fragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},
-	}
-	mainRectProgram := g143.MakeProgram(mainRectShaders)
+
+	mainRectProgram := g143.MakeProgram(g143.BasicVertexShaderSource, fragmentShaderSource)
 
 	// draw([]uint32{vao}, window, mainRectProgram, [][]float32{rect1})
 	gl.UseProgram(mainRectProgram)

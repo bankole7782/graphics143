@@ -26,6 +26,8 @@ func main() {
 		panic(err)
 	}
 
+	gl.Enable(gl.MULTISAMPLE)
+
 	for !window.ShouldClose() {
 		t := time.Now()
 
@@ -50,11 +52,7 @@ func allDraws(window *glfw.Window) {
 	pointVertices := []float32{g143.XtoFloat(100, wWidth), g143.YtoFloat(100, wHeight), 0}
 	pvVao := makeVao(pointVertices)
 	pointFragmentSource, _ := g143.GetPointShader("#626193")
-	pt1Shaders := []g143.ShaderDef{
-		{Source: g143.BasicVertexShaderSource, ShaderType: gl.VERTEX_SHADER},
-		{Source: pointFragmentSource, ShaderType: gl.FRAGMENT_SHADER},
-	}
-	pt1Program := g143.MakeProgram(pt1Shaders)
+	pt1Program := g143.MakeProgram(g143.BasicVertexShaderSource, pointFragmentSource)
 
 	gl.PointSize(100)
 	draw(pvVao, pt1Program, pointVertices)
@@ -70,11 +68,7 @@ func allDraws(window *glfw.Window) {
 	rect1Vertices := g143.RectangleToCoords(wWidth, wHeight, rect1Specs)
 	rectVao := makeVao(rect1Vertices)
 	rectFragmentShaderSource, _ := g143.GetRectColorShader("#626193")
-	rectShaders := []g143.ShaderDef{
-		{Source: g143.BasicVertexShaderSource, ShaderType: gl.VERTEX_SHADER},
-		{Source: rectFragmentShaderSource, ShaderType: gl.FRAGMENT_SHADER},
-	}
-	rectProgram := g143.MakeProgram(rectShaders)
+	rectProgram := g143.MakeProgram(g143.BasicVertexShaderSource, rectFragmentShaderSource)
 	gl.UseProgram(rectProgram)
 	gl.BindVertexArray(rectVao)
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(rect1Vertices)/3))
