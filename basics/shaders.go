@@ -1,4 +1,4 @@
-package graphics143
+package basics
 
 import (
 	"fmt"
@@ -71,6 +71,25 @@ func CompileShader(source string, shaderType uint32) (uint32, error) {
 	return shader, nil
 }
 
+func MakeProgram(vertexShaderSource, fragmentShaderSource string) uint32 {
+	prog := gl.CreateProgram()
+
+	vertShader, err := CompileShader(vertexShaderSource, gl.VERTEX_SHADER)
+	if err != nil {
+		panic(err)
+	}
+	gl.AttachShader(prog, vertShader)
+
+	fragShader, err := CompileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
+	if err != nil {
+		panic(err)
+	}
+	gl.AttachShader(prog, fragShader)
+
+	gl.LinkProgram(prog)
+	return prog
+}
+
 func ConvertColorToShaderFloats(hexColor string) (float32, float32, float32, float32) {
 	c, err := colorful.Hex(hexColor)
 	if err != nil {
@@ -118,4 +137,21 @@ func GetPointShader(hexColor string) (string, error) {
 
 func GetUniformLocation(openglProgram uint32, name string) int32 {
 	return gl.GetUniformLocation(openglProgram, gl.Str(name+"\x00"))
+}
+
+// makeVao initializes and returns a vertex array from the points provided.
+func MakeBasicVao(points []float32) uint32 {
+	var vbo uint32
+	gl.GenBuffers(1, &vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*len(points), gl.Ptr(points), gl.STATIC_DRAW)
+
+	var vao uint32
+	gl.GenVertexArrays(1, &vao)
+	gl.BindVertexArray(vao)
+	gl.EnableVertexAttribArray(0)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+
+	return vao
 }

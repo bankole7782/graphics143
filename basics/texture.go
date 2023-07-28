@@ -1,4 +1,4 @@
-package graphics143
+package basics
 
 import (
 	"image"
@@ -11,6 +11,12 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/pkg/errors"
 )
+
+type Texture struct {
+	handle  uint32
+	target  uint32 // same target as gl.BindTexture(<this param>, ...)
+	texUnit uint32 // Texture unit that is currently bound to ex: gl.TEXTURE0
+}
 
 func NewTextureFromFile(file string, wrapR, wrapS int32) (*Texture, error) {
 	imgFile, err := os.Open(file)
@@ -87,26 +93,4 @@ func (tex *Texture) SetUniform(uniformLoc int32) error {
 	}
 	gl.Uniform1i(uniformLoc, int32(tex.texUnit-gl.TEXTURE0))
 	return nil
-}
-
-// the outputs of this is good for gl.DrawElements
-func ImageCoordinates(windowWidth, windowHeight int, rectSpec RectSpecs) ([]float32, []uint32) {
-	tmpVertices, indices := RectangleToCoords2(windowWidth, windowHeight, rectSpec)
-	v1 := tmpVertices
-	// inject texture coordinates
-	vertices := []float32{
-		v1[0], v1[1], v1[2], // vertices position
-		1.0, 0.0, // texture coordinates
-
-		v1[3], v1[4], v1[5],
-		1.0, 1.0,
-
-		v1[6], v1[7], v1[8],
-		0.0, 1.0,
-
-		v1[9], v1[10], v1[11],
-		0.0, 0.0,
-	}
-
-	return vertices, indices
 }

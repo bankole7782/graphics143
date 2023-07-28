@@ -1,4 +1,4 @@
-package graphics143
+package basics
 
 import (
 	"image"
