@@ -22,10 +22,6 @@ func main() {
 
 	window := g143.NewWindow(width, height, "a circle", false)
 
-	if err := gl.Init(); err != nil {
-		panic(err)
-	}
-
 	vertices := g143.CircleCoords(width, height, width/2, height/2, 200)
 	vertices2 := g143.CircleCoords(width, height, width/2, height/2, 230)
 

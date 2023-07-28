@@ -22,9 +22,6 @@ func main() {
 
 	window := g143.NewWindow(width, height, "a single pill", true)
 	window.SetFramebufferSizeCallback(frameBufferSizeCallback)
-	if err := gl.Init(); err != nil {
-		panic(err)
-	}
 
 	gl.Enable(gl.MULTISAMPLE)
 

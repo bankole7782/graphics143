@@ -22,11 +22,6 @@ func main() {
 
 	window := g143.NewWindow(width, height, "bordered circle", true)
 	window.SetFramebufferSizeCallback(frameBufferSizeCallback)
-	if err := gl.Init(); err != nil {
-		panic(err)
-	}
-
-	gl.Enable(gl.MULTISAMPLE)
 
 	// gl.Enable(gl.LINE_SMOOTH)
 	// gl.Enable(gl.POLYGON_SMOOTH)

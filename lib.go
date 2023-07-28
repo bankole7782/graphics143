@@ -146,6 +146,15 @@ func NewWindow(width, height int, title string, resizable bool) *glfw.Window {
 
 	window.SetPos(windowX, windowY)
 
+	// OpenGL state
+	if err := gl.Init(); err != nil {
+		panic(err)
+	}
+
+	gl.Enable(gl.BLEND)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	gl.Enable(gl.MULTISAMPLE)
+
 	return window
 }
 

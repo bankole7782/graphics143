@@ -27,9 +27,6 @@ func main() {
 	runtime.LockOSThread()
 
 	window := g143.NewWindow(width, height, "a single text: text1", false)
-	if err := gl.Init(); err != nil {
-		panic(err)
-	}
 
 	err := programLoop(window)
 	if err != nil {
@@ -85,12 +82,6 @@ func createVAO(vertices []float32, indices []uint32) uint32 {
 }
 
 func programLoop(window *glfw.Window) error {
-
-	// OpenGL state
-	// ------------
-	gl.Enable(gl.CULL_FACE)
-	gl.Enable(gl.BLEND)
-	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
 	// truetype things
 	parsedFont, err := truetype.Parse(RobotoBytes)

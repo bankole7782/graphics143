@@ -24,9 +24,6 @@ func main() {
 	runtime.LockOSThread()
 
 	window := g143.NewWindow(width, height, "image view", false)
-	if err := gl.Init(); err != nil {
-		panic(err)
-	}
 
 	err := programLoop(window)
 	if err != nil {
