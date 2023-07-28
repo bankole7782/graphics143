@@ -1,8 +1,13 @@
 package main
 
 import (
+	"image"
+	"os"
 	"runtime"
 	"time"
+
+	_ "image/jpeg"
+	_ "image/png"
 
 	g143 "github.com/bankole7782/graphics143"
 	"github.com/bankole7782/graphics143/basics"
@@ -15,9 +20,13 @@ const (
 )
 
 func main() {
+	if len(os.Args) == 1 {
+		panic("Expecting a picture path as the only argument")
+	}
+
 	runtime.LockOSThread()
 
-	window := g143.NewWindow(800, 600, "many rectangles", true)
+	window := g143.NewWindow(800, 600, "an image viewer", false)
 	window.SetFramebufferSizeCallback(frameBufferSizeCallback)
 
 	for !window.ShouldClose() {
@@ -26,6 +35,7 @@ func main() {
 		allDraws(window)
 		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
 	}
+
 }
 
 func allDraws(window *glfw.Window) {
@@ -34,20 +44,21 @@ func allDraws(window *glfw.Window) {
 
 	wWidth, wHeight := window.GetSize()
 
-	rs1 := basics.RectSpecs{200, 100, 50, 50}
-	rs2 := basics.RectSpecs{200, 100, 300, 50}
-	rs3 := basics.RectSpecs{200, 100, 50, 200}
-	rs4 := g143.GetInsetRectangle(rs3, 5)
+	imgFile, err := os.Open(os.Args[1])
+	if err != nil {
+		panic(err)
+	}
+	defer imgFile.Close()
 
-	rs5 := basics.RectSpecs{200, 100, 300, 200}
-	rs6 := g143.GetBorderSideRectangle(rs5, g143.RIGHT, 5)
+	// Decode detexts the type of image as long as its image/<type> is imported
+	img, _, err := image.Decode(imgFile)
+	if err != nil {
+		panic(err)
+	}
 
-	g143.DrawRectangle(wWidth, wHeight, "#D4D7BC", rs1)
-	g143.DrawRectangle(wWidth, wHeight, "#61636A", rs2)
-	g143.DrawRectangle(wWidth, wHeight, "#61636A", rs3)
-	g143.DrawRectangle(wWidth, wHeight, "#D4D7BC", rs4)
-	g143.DrawRectangle(wWidth, wHeight, "#D4D7BC", rs5)
-	g143.DrawRectangle(wWidth, wHeight, "#61636A", rs6)
+	irs := basics.RectSpecs{Width: 400, Height: 400, OriginX: 50, OriginY: 50}
+
+	g143.DrawImage(wWidth, wHeight, img, irs)
 
 	glfw.PollEvents()
 	window.SwapBuffers()

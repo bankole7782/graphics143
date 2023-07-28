@@ -2,6 +2,9 @@
 package graphics143
 
 import (
+	"image"
+	"unsafe"
+
 	"github.com/bankole7782/graphics143/basics"
 	"github.com/go-gl/gl/v4.1-core/gl"
 )
@@ -28,14 +31,6 @@ func DrawRectangle(windowWidth, windowHeight int, hexColor string, rectSpecs bas
 	gl.BindVertexArray(0)
 }
 
-func GetBorderRectangles(rectSpec basics.RectSpecs, borderDepth int) []basics.RectSpecs {
-	border1 := GetBorderSideRectangle(rectSpec, LEFT, borderDepth)
-	border2 := GetBorderSideRectangle(rectSpec, TOP, borderDepth)
-	border3 := GetBorderSideRectangle(rectSpec, RIGHT, borderDepth)
-	border4 := GetBorderSideRectangle(rectSpec, BOTTOM, borderDepth)
-	return []basics.RectSpecs{border1, border2, border3, border4}
-}
-
 func GetBorderSideRectangle(rectSpec basics.RectSpecs, borderSide BorderSide, borderDepth int) basics.RectSpecs {
 	if borderSide == LEFT {
 		return basics.RectSpecs{Width: borderDepth, Height: rectSpec.Height, OriginX: rectSpec.OriginX, OriginY: rectSpec.OriginY}
@@ -55,4 +50,29 @@ func GetInsetRectangle(rectSpec basics.RectSpecs, borderDepth int) basics.RectSp
 		OriginX: rectSpec.OriginX + borderDepth,
 		OriginY: rectSpec.OriginY + borderDepth,
 	}
+}
+
+func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs basics.RectSpecs) {
+	shaderProgram := basics.MakeProgram(basics.TextureVertexShaderSrc, basics.TextureFragmentShaderSrc)
+	vertices, indices := basics.ImageCoordinates(windowWidth, windowHeight, imageRectSpecs)
+
+	VAO := basics.MakeImageVAO(vertices, indices)
+	texture0, err := basics.NewTexture(img, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// draw vertices
+	gl.UseProgram(shaderProgram)
+	// set texture0 to uniform0 in the fragment shader
+	texture0.Bind(gl.TEXTURE0)
+	uniform1 := basics.GetUniformLocation(shaderProgram, "ourTexture0")
+	texture0.SetUniform(uniform1)
+
+	gl.BindVertexArray(VAO)
+	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))
+	gl.BindVertexArray(0)
+
+	texture0.UnBind()
+
 }
