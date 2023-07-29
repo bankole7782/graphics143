@@ -96,7 +96,7 @@ func (tex *Texture) SetUniform(uniformLoc int32) error {
 }
 
 func (tex *Texture) Delete() {
-	gl.DeleteTextures(1, (*uint32)(gl.Ptr(tex.handle)))
+	gl.DeleteTextures(1, &tex.handle)
 }
 
 /*

@@ -16,7 +16,8 @@ import (
 var DefaultFontBytes []byte
 
 const (
-	DPI = 72
+	DEFAULT_FONT_SIZE = 20
+	dpi               = 72
 )
 
 func MeasureText(string1 string, fontBytes []byte, size float64) int {
@@ -32,7 +33,7 @@ func MeasureText(string1 string, fontBytes []byte, size float64) int {
 		Src: image.Black,
 		Face: truetype.NewFace(fontParsed, &truetype.Options{
 			Size:    size,
-			DPI:     float64(DPI),
+			DPI:     float64(dpi),
 			Hinting: font.HintingNone,
 		}),
 	}
@@ -40,11 +41,10 @@ func MeasureText(string1 string, fontBytes []byte, size float64) int {
 	return fontDrawer.MeasureString(string1).Round()
 }
 
-// Spacing could be 1.5, 2
-func DrawString(windowWidth, windowHeight int, str, hexColor string, fontBytes []byte, size float64,
+func DrawString(windowWidth, windowHeight int, str, hexColor string, fontBytes *[]byte, size float64,
 	strRectSpec basics.RectSpecs) {
 	// truetype things
-	parsedFont, err := truetype.Parse(fontBytes)
+	parsedFont, err := truetype.Parse(*fontBytes)
 	if err != nil {
 		panic(err)
 	}
@@ -59,7 +59,7 @@ func DrawString(windowWidth, windowHeight int, str, hexColor string, fontBytes [
 	rgba := image.NewRGBA(image.Rect(0, 0, strRectSpec.Width, strRectSpec.Height))
 	draw.Draw(rgba, rgba.Bounds(), bg, image.Point{}, draw.Src)
 	c := freetype.NewContext()
-	c.SetDPI(DPI)
+	c.SetDPI(dpi)
 	c.SetFont(parsedFont)
 	c.SetFontSize(float64(size))
 	c.SetClip(rgba.Bounds())

@@ -23,6 +23,7 @@ func DrawCircle(windowWidth, windowHeight int, hexColor string, radius, originX,
 	gl.DeleteShader(shader2)
 
 	gl.BindVertexArray(0)
+	gl.DeleteVertexArrays(1, &pointVAO)
 }
 
 func DrawRoundedRectangle(windowWidth, windowHeight int, hexColor string, rectSpecs basics.RectSpecs, borderRadius int) {

@@ -31,7 +31,7 @@ func DrawRectangle(windowWidth, windowHeight int, hexColor string, rectSpecs bas
 	gl.DeleteProgram(rectProgram)
 	gl.DeleteShader(shader1)
 	gl.DeleteShader(shader2)
-
+	gl.DeleteVertexArrays(1, &rectVAO)
 	gl.BindVertexArray(0)
 }
 
@@ -75,9 +75,13 @@ func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs ba
 
 	gl.BindVertexArray(VAO)
 	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))
+
+	// free up memory
 	gl.BindVertexArray(0)
+	gl.DeleteVertexArrays(1, &VAO)
 
 	texture0.UnBind()
+	texture0.Delete()
 
 	gl.DeleteProgram(imgProgram)
 	gl.DeleteShader(shader1)
