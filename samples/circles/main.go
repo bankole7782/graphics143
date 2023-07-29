@@ -34,12 +34,17 @@ func allDraws(window *glfw.Window) {
 
 	wWidth, wHeight := window.GetSize()
 
-	g143.DrawCircle(wWidth, wHeight, "#aaaaaa", 50, 50, 50)
-	rs1 := basics.RectSpecs{Width: 310, Height: 72, OriginX: 115, OriginY: 210}
-	g143.DrawRoundedRectangle(wWidth, wHeight, "#666666", rs1, 72)
+	rs3 := basics.RectSpecs{Width: 50, Height: 50, OriginX: 50, OriginY: 50}
 
-	rs2 := basics.RectSpecs{Width: 310, Height: 72, OriginX: 115, OriginY: 320}
-	g143.DrawRoundedRectangle(wWidth, wHeight, "#666666", rs2, 60)
+	g143.DrawRectangle(wWidth, wHeight, "#6666aa", rs3)
+	g143.DrawCircle(wWidth, wHeight, "#aaaaaa", 25, 50, 50)
+
+	rs1 := basics.RectSpecs{Width: 210, Height: 102, OriginX: 115, OriginY: 210}
+	// g143.DrawRectangle(wWidth, wHeight, "#444444", rs1)
+	g143.DrawRoundedRectangle(wWidth, wHeight, "#758571", rs1, 15)
+
+	rs2 := basics.RectSpecs{Width: 210, Height: 102, OriginX: 375, OriginY: 210}
+	g143.DrawRoundedRectangle(wWidth, wHeight, "#666666", rs2, 51)
 
 	glfw.PollEvents()
 	window.SwapBuffers()

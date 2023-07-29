@@ -20,13 +20,17 @@ const (
 
 func DrawRectangle(windowWidth, windowHeight int, hexColor string, rectSpecs basics.RectSpecs) {
 	fragmentShaderSource, _ := basics.GetRectColorShader(hexColor)
-	rectProgram := basics.MakeProgram(basics.BasicVertexShaderSource, fragmentShaderSource)
+	rectProgram, shader1, shader2 := basics.MakeProgram(basics.BasicVertexShaderSource, fragmentShaderSource)
 	rectVertices := basics.RectangleToCoords(windowWidth, windowHeight, rectSpecs)
 	rectVAO := basics.MakeBasicVao(rectVertices)
 
 	gl.UseProgram(rectProgram)
 	gl.BindVertexArray(rectVAO)
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(rectVertices)/3))
+
+	gl.DeleteProgram(rectProgram)
+	gl.DeleteShader(shader1)
+	gl.DeleteShader(shader2)
 
 	gl.BindVertexArray(0)
 }
@@ -53,7 +57,7 @@ func GetInsetRectangle(rectSpec basics.RectSpecs, borderDepth int) basics.RectSp
 }
 
 func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs basics.RectSpecs) {
-	shaderProgram := basics.MakeProgram(basics.TextureVertexShaderSrc, basics.TextureFragmentShaderSrc)
+	imgProgram, shader1, shader2 := basics.MakeProgram(basics.TextureVertexShaderSrc, basics.TextureFragmentShaderSrc)
 	vertices, indices := basics.ImageCoordinates(windowWidth, windowHeight, imageRectSpecs)
 
 	VAO := basics.MakeImageVAO(vertices, indices)
@@ -63,10 +67,10 @@ func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs ba
 	}
 
 	// draw vertices
-	gl.UseProgram(shaderProgram)
+	gl.UseProgram(imgProgram)
 	// set texture0 to uniform0 in the fragment shader
 	texture0.Bind(gl.TEXTURE0)
-	uniform1 := basics.GetUniformLocation(shaderProgram, "ourTexture0")
+	uniform1 := basics.GetUniformLocation(imgProgram, "ourTexture0")
 	texture0.SetUniform(uniform1)
 
 	gl.BindVertexArray(VAO)
@@ -74,5 +78,9 @@ func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs ba
 	gl.BindVertexArray(0)
 
 	texture0.UnBind()
+
+	gl.DeleteProgram(imgProgram)
+	gl.DeleteShader(shader1)
+	gl.DeleteShader(shader2)
 
 }
