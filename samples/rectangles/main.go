@@ -19,20 +19,20 @@ func main() {
 
 	window := g143.NewWindow(800, 600, "many rectangles", true)
 	window.SetFramebufferSizeCallback(frameBufferSizeCallback)
+	allDraws(window)
 
 	for !window.ShouldClose() {
 		t := time.Now()
+		glfw.PollEvents()
 
-		allDraws(window)
 		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
 	}
 }
 
 func allDraws(window *glfw.Window) {
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
-
 	wWidth, wHeight := window.GetSize()
+	// background rectangle
+	g143.DrawRectangle(wWidth, wHeight, "#ffffff", basics.RectSpecs{wWidth, wHeight, 0, 0})
 
 	rs1 := basics.RectSpecs{200, 100, 50, 50}
 	rs2 := basics.RectSpecs{200, 100, 300, 50}
@@ -49,7 +49,6 @@ func allDraws(window *glfw.Window) {
 	g143.DrawRectangle(wWidth, wHeight, "#D4D7BC", rs5)
 	g143.DrawRectangle(wWidth, wHeight, "#61636A", rs6)
 
-	glfw.PollEvents()
 	window.SwapBuffers()
 }
 

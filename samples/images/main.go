@@ -28,21 +28,21 @@ func main() {
 
 	window := g143.NewWindow(800, 600, "an image viewer", false)
 	window.SetFramebufferSizeCallback(frameBufferSizeCallback)
+	allDraws(window)
 
 	for !window.ShouldClose() {
 		t := time.Now()
+		glfw.PollEvents()
 
-		allDraws(window)
 		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
 	}
 
 }
 
 func allDraws(window *glfw.Window) {
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
-
 	wWidth, wHeight := window.GetSize()
+	// background rectangle
+	g143.DrawRectangle(wWidth, wHeight, "#ffffff", basics.RectSpecs{wWidth, wHeight, 0, 0})
 
 	imgFile, err := os.Open(os.Args[1])
 	if err != nil {
@@ -60,7 +60,6 @@ func allDraws(window *glfw.Window) {
 
 	g143.DrawImage(wWidth, wHeight, img, irs)
 
-	glfw.PollEvents()
 	window.SwapBuffers()
 }
 
