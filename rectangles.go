@@ -106,3 +106,13 @@ func DrawRectangleGradient(windowWidth, windowHeight int, hexColors []string, re
 
 	DrawImage(windowWidth, windowHeight, img, rectSpecs)
 }
+
+// useful for mouse events
+func InRectSpecs(rectSpecs basics.RectSpecs, xPos, yPos int) bool {
+	if (xPos > rectSpecs.OriginX) && (xPos < rectSpecs.Width+rectSpecs.OriginX) &&
+		(yPos > rectSpecs.OriginY) && (yPos < rectSpecs.Height+rectSpecs.OriginY) {
+		return true
+	}
+
+	return false
+}
