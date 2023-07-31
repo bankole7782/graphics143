@@ -33,7 +33,7 @@ func allDraws(window *glfw.Window) {
 	wWidth, wHeight := window.GetSize()
 
 	// background rectangle
-	g143.DrawRectangle(wWidth, wHeight, "#dddddd", basics.RectSpecs{wWidth, wHeight, 0, 0})
+	g143.DrawRectangle(wWidth, wHeight, "#dddddd", basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0})
 
 	text1 := "OpenGL Text 1"
 	textWidth1 := g143.MeasureText(text1, g143.DefaultFontBytes, g143.DEFAULT_FONT_SIZE)

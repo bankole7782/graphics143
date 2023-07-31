@@ -35,6 +35,23 @@ func DrawRectangle(windowWidth, windowHeight int, hexColor string, rectSpecs bas
 	gl.BindVertexArray(0)
 }
 
+func DrawRectangleGradient(windowWidth, windowHeight int, hexColor1, hexColor2 string, directionX bool, rectSpecs basics.RectSpecs) {
+	fragmentShaderSource, _ := basics.GetRectGradientShader(hexColor1, hexColor2, directionX, windowWidth, windowHeight, rectSpecs)
+	rectProgram, shader1, shader2 := basics.MakeProgram(basics.BasicVertexShaderSource, fragmentShaderSource)
+	rectVertices := basics.RectangleToCoords(windowWidth, windowHeight, rectSpecs)
+	rectVAO := basics.MakeBasicVao(rectVertices)
+
+	gl.UseProgram(rectProgram)
+	gl.BindVertexArray(rectVAO)
+	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(rectVertices)/3))
+
+	gl.DeleteProgram(rectProgram)
+	gl.DeleteShader(shader1)
+	gl.DeleteShader(shader2)
+	gl.DeleteVertexArrays(1, &rectVAO)
+	gl.BindVertexArray(0)
+}
+
 func GetBorderSideRectangle(rectSpec basics.RectSpecs, borderSide BorderSide, borderDepth int) basics.RectSpecs {
 	if borderSide == LEFT {
 		return basics.RectSpecs{Width: borderDepth, Height: rectSpec.Height, OriginX: rectSpec.OriginX, OriginY: rectSpec.OriginY}
