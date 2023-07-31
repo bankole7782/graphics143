@@ -118,51 +118,6 @@ func GetRectColorShader(hexColor string) (string, error) {
 	return fragmentShaderSource, nil
 }
 
-func GetRectGradientShader(hexColor1, hexColor2 string, directionX bool, windowWidth, windowHeight int, rectSpecs RectSpecs) (string, error) {
-	rf1, gf1, bf1, af1 := ConvertColorToShaderFloats(hexColor1)
-	rf2, gf2, bf2, af2 := ConvertColorToShaderFloats(hexColor2)
-
-	var fragmentShaderSource string
-	if directionX {
-		fragmentShaderSource = fmt.Sprintf(`
-			#version 410 core
-			out vec4 frag_colour;
-
-			void main() {
-				vec2 u_resolution = vec2(%d, %d);
-				vec2 st = gl_FragCoord.xy/u_resolution.xy;
-				float mixValue = distance(st, vec2(0, 1));
-				vec4 color1 = vec4(%f, %f, %f, %f);
-				vec4 color2 = vec4(%f, %f, %f, %f);
-				frag_colour = mix(color1, color2, mixValue);
-			}
-			`, windowWidth, windowHeight,
-			rf1, gf1, bf1, af1,
-			rf2, gf2, bf2, af2,
-		)
-	} else {
-		fragmentShaderSource = fmt.Sprintf(`
-			#version 410 core
-			out vec4 frag_colour;
-
-			void main() {
-				float lerpValue = gl_FragCoord.y / %d.0f;
-				vec4 color1 = vec4(%f, %f, %f, %f);
-				vec4 color2 = vec4(%f, %f, %f, %f);
-				frag_colour = mix(color1, color2, lerpValue);
-			}
-			`, (rectSpecs.Height - rectSpecs.OriginY),
-			rf1, gf1, bf1, af1,
-			rf2, gf2, bf2, af2,
-		)
-
-	}
-
-	fmt.Println(fragmentShaderSource)
-
-	return fragmentShaderSource, nil
-}
-
 func GetPointShader(hexColor string) (string, error) {
 	rf, gf, bf, af := ConvertColorToShaderFloats(hexColor)
 	circlePointFragmentSource := fmt.Sprintf(`

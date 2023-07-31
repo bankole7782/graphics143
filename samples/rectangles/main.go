@@ -35,19 +35,19 @@ func allDraws(window *glfw.Window) {
 	g143.DrawRectangle(wWidth, wHeight, "#ffffff", basics.RectSpecs{wWidth, wHeight, 0, 0})
 
 	rs1 := basics.RectSpecs{200, 100, 50, 50}
-	// rs2 := basics.RectSpecs{200, 100, 300, 50}
-	// rs3 := basics.RectSpecs{200, 100, 50, 200}
-	// rs4 := g143.GetInsetRectangle(rs3, 5)
+	rs2 := basics.RectSpecs{200, 100, 300, 50}
+	rs3 := basics.RectSpecs{200, 100, 50, 200}
+	rs4 := g143.GetInsetRectangle(rs3, 5)
 
 	rs5 := basics.RectSpecs{200, 100, 300, 200}
-	// // rs6 := g143.GetBorderSideRectangle(rs5, g143.RIGHT, 5)
+	rs6 := g143.GetBorderSideRectangle(rs5, g143.RIGHT, 5)
 
 	g143.DrawRectangle(wWidth, wHeight, "#D4D7BC", rs1)
-	// g143.DrawRectangle(wWidth, wHeight, "#61636A", rs2)
-	// g143.DrawRectangle(wWidth, wHeight, "#61636A", rs3)
-	// g143.DrawRectangle(wWidth, wHeight, "#D4D7BC", rs4)
-	g143.DrawRectangleGradient(wWidth, wHeight, "#D4D7BC", "#61636A", true, rs5)
-	// // g143.DrawRectangle(wWidth, wHeight, "#61636A", rs6)
+	g143.DrawRectangle(wWidth, wHeight, "#61636A", rs2)
+	g143.DrawRectangle(wWidth, wHeight, "#61636A", rs3)
+	g143.DrawRectangle(wWidth, wHeight, "#D4D7BC", rs4)
+	g143.DrawRectangle(wWidth, wHeight, "#D4D7BC", rs5)
+	g143.DrawRectangle(wWidth, wHeight, "#61636A", rs6)
 
 	window.SwapBuffers()
 }

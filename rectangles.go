@@ -7,6 +7,7 @@ import (
 
 	"github.com/bankole7782/graphics143/basics"
 	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/mazznoer/colorgrad"
 )
 
 type BorderSide int
@@ -20,23 +21,6 @@ const (
 
 func DrawRectangle(windowWidth, windowHeight int, hexColor string, rectSpecs basics.RectSpecs) {
 	fragmentShaderSource, _ := basics.GetRectColorShader(hexColor)
-	rectProgram, shader1, shader2 := basics.MakeProgram(basics.BasicVertexShaderSource, fragmentShaderSource)
-	rectVertices := basics.RectangleToCoords(windowWidth, windowHeight, rectSpecs)
-	rectVAO := basics.MakeBasicVao(rectVertices)
-
-	gl.UseProgram(rectProgram)
-	gl.BindVertexArray(rectVAO)
-	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(rectVertices)/3))
-
-	gl.DeleteProgram(rectProgram)
-	gl.DeleteShader(shader1)
-	gl.DeleteShader(shader2)
-	gl.DeleteVertexArrays(1, &rectVAO)
-	gl.BindVertexArray(0)
-}
-
-func DrawRectangleGradient(windowWidth, windowHeight int, hexColor1, hexColor2 string, directionX bool, rectSpecs basics.RectSpecs) {
-	fragmentShaderSource, _ := basics.GetRectGradientShader(hexColor1, hexColor2, directionX, windowWidth, windowHeight, rectSpecs)
 	rectProgram, shader1, shader2 := basics.MakeProgram(basics.BasicVertexShaderSource, fragmentShaderSource)
 	rectVertices := basics.RectangleToCoords(windowWidth, windowHeight, rectSpecs)
 	rectVAO := basics.MakeBasicVao(rectVertices)
@@ -104,4 +88,21 @@ func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs ba
 	gl.DeleteShader(shader1)
 	gl.DeleteShader(shader2)
 
+}
+
+func DrawRectangleGradient(windowWidth, windowHeight int, hexColors []string, rectSpecs basics.RectSpecs) {
+	grad, _ := colorgrad.NewGradient().
+		HtmlColors(hexColors...).
+		Build()
+
+	img := image.NewRGBA(image.Rect(0, 0, rectSpecs.Width, rectSpecs.Height))
+
+	for x := 0; x < rectSpecs.Width; x++ {
+		col := grad.At(float64(x) / float64(rectSpecs.Width))
+		for y := 0; y < rectSpecs.Height; y++ {
+			img.Set(x, y, col)
+		}
+	}
+
+	DrawImage(windowWidth, windowHeight, img, rectSpecs)
 }
