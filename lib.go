@@ -5,6 +5,14 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
+func XtoFloat(x, windowWidth int) float32 {
+	return float32(2.0)*(float32(x)/float32(windowWidth)) - float32(1.0)
+}
+
+func YtoFloat(y, windowHeight int) float32 {
+	return float32(1.0) - (float32(2.0) * float32(y) / float32(windowHeight))
+}
+
 // NewWindow begins with initializing glfw and gl libraries.
 func NewWindow(width, height int, title string, resizable bool) *glfw.Window {
 	if err := glfw.Init(); err != nil {

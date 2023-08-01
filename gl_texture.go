@@ -1,4 +1,4 @@
-package basics
+package graphics143
 
 import (
 	"image"
@@ -12,13 +12,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Texture struct {
+type TextureT struct {
 	handle  uint32
 	target  uint32 // same target as gl.BindTexture(<this param>, ...)
 	texUnit uint32 // Texture unit that is currently bound to ex: gl.TEXTURE0
 }
 
-func NewTextureFromFile(file string, wrapR, wrapS int32) (*Texture, error) {
+func newTextureFromFile(file string, wrapR, wrapS int32) (*TextureT, error) {
 	imgFile, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -31,10 +31,10 @@ func NewTextureFromFile(file string, wrapR, wrapS int32) (*Texture, error) {
 		return nil, err
 	}
 
-	return NewTexture(img, wrapR, wrapS)
+	return newTexture(img, wrapR, wrapS)
 }
 
-func NewTexture(img image.Image, wrapR, wrapS int32) (*Texture, error) {
+func newTexture(img image.Image, wrapR, wrapS int32) (*TextureT, error) {
 	img = imaging.FlipH(img)
 
 	rgba := image.NewRGBA(img.Bounds())
@@ -54,7 +54,7 @@ func NewTexture(img image.Image, wrapR, wrapS int32) (*Texture, error) {
 	pixType := uint32(gl.UNSIGNED_BYTE)
 	dataPtr := gl.Ptr(rgba.Pix)
 
-	texture := Texture{
+	texture := TextureT{
 		handle: handle,
 		target: target,
 	}
@@ -76,18 +76,18 @@ func NewTexture(img image.Image, wrapR, wrapS int32) (*Texture, error) {
 	return &texture, nil
 }
 
-func (tex *Texture) Bind(texUnit uint32) {
+func (tex *TextureT) Bind(texUnit uint32) {
 	gl.ActiveTexture(texUnit)
 	gl.BindTexture(tex.target, tex.handle)
 	tex.texUnit = texUnit
 }
 
-func (tex *Texture) UnBind() {
+func (tex *TextureT) UnBind() {
 	tex.texUnit = 0
 	gl.BindTexture(tex.target, 0)
 }
 
-func (tex *Texture) SetUniform(uniformLoc int32) error {
+func (tex *TextureT) SetUniform(uniformLoc int32) error {
 	if tex.texUnit == 0 {
 		return errors.New("texture not bound")
 	}
@@ -95,14 +95,14 @@ func (tex *Texture) SetUniform(uniformLoc int32) error {
 	return nil
 }
 
-func (tex *Texture) Delete() {
+func (tex *TextureT) Delete() {
 	gl.DeleteTextures(1, &tex.handle)
 }
 
 /*
  * Creates the Vertex Array Object for a triangle.
  */
-func MakeImageVAO(vertices []float32, indices []uint32) uint32 {
+func makeImageVAO(vertices []float32, indices []uint32) uint32 {
 
 	var VAO uint32
 	gl.GenVertexArrays(1, &VAO)

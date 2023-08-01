@@ -10,7 +10,6 @@ import (
 	_ "image/png"
 
 	g143 "github.com/bankole7782/graphics143"
-	"github.com/bankole7782/graphics143/basics"
 	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -31,7 +30,7 @@ type TextEntry struct {
 type DoneBtn struct {
 }
 
-var objCoords map[basics.RectSpecs]any
+var objCoords map[g143.RectSpecs]any
 var currentWindowFrame image.Image
 var inputsStore map[string]string
 var activeEntryIndex int
@@ -40,7 +39,7 @@ var enteredText string
 func main() {
 	runtime.LockOSThread()
 
-	objCoords = make(map[basics.RectSpecs]any)
+	objCoords = make(map[g143.RectSpecs]any)
 	inputsStore = make(map[string]string)
 
 	window := g143.NewWindow(800, 600, "an inputs program (sample)", false)
@@ -70,7 +69,7 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 
 	wWidth, wHeight := window.GetSize()
 
-	var objRS basics.RectSpecs
+	var objRS g143.RectSpecs
 	var obj any
 
 	for rs, anyObj := range objCoords {
@@ -98,7 +97,7 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 			ggCtx.DrawImage(img, objRS.OriginX+10, objRS.OriginY+10)
 
 			// send the frame to glfw window
-			windowRS := basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+			windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 			g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 			window.SwapBuffers()
 
@@ -132,7 +131,7 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 			ggCtx.Fill()
 
 			// send the frame to glfw window
-			windowRS := basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+			windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 			g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 			window.SwapBuffers()
 
@@ -164,7 +163,7 @@ func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Ac
 
 	wWidth, wHeight := window.GetSize()
 
-	var objRS basics.RectSpecs
+	var objRS g143.RectSpecs
 	for k, v := range objCoords {
 		textEntry, ok := v.(TextEntry)
 		if ok && textEntry.Index == activeEntryIndex {
@@ -202,7 +201,7 @@ func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Ac
 	ggCtx.DrawString(enteredText, float64(objRS.OriginX+25), float64(objRS.OriginY+25))
 
 	// send the frame to glfw window
-	windowRS := basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 	window.SwapBuffers()
 
@@ -236,7 +235,7 @@ func allDraws(window *glfw.Window) {
 	ggCtx.Fill()
 
 	// save valuable coordinates
-	prs := basics.RectSpecs{Width: 200, Height: 200, OriginX: 20, OriginY: 70}
+	prs := g143.RectSpecs{Width: 200, Height: 200, OriginX: 20, OriginY: 70}
 	objCoords[prs] = ImagePicker{}
 
 	err = ggCtx.LoadFontFace("Roboto-Light.ttf", 20)
@@ -262,7 +261,7 @@ func allDraws(window *glfw.Window) {
 		ggCtx.DrawRectangle(iBoxX, iBoxY, float64(iBoxWidth), float64(iBoxHeight))
 		ggCtx.Fill()
 
-		ibrs := basics.RectSpecs{Width: iBoxWidth, Height: iBoxHeight, OriginX: int(iBoxX), OriginY: int(iBoxY)}
+		ibrs := g143.RectSpecs{Width: iBoxWidth, Height: iBoxHeight, OriginX: int(iBoxX), OriginY: int(iBoxY)}
 		objCoords[ibrs] = TextEntry{i + 1}
 
 		ggCtx.SetHexColor("#fff")
@@ -289,11 +288,11 @@ func allDraws(window *glfw.Window) {
 	btnTextX := btnBGX + float64(float64(btnBGWidth)-btnTextWidth)/2.0
 	ggCtx.DrawString(btnText, btnTextX, 300+40)
 
-	bgBtnTextRS := basics.RectSpecs{Width: btnBGWidth, Height: int(btnBGX), OriginY: 300}
+	bgBtnTextRS := g143.RectSpecs{Width: btnBGWidth, Height: int(btnBGX), OriginY: 300}
 	objCoords[bgBtnTextRS] = DoneBtn{}
 
 	// send the frame to glfw window
-	windowRS := basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 	window.SwapBuffers()
 

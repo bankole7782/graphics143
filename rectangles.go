@@ -1,68 +1,19 @@
-// You must have initialized glfw and gl before using any function here function
 package graphics143
 
 import (
 	"image"
 	"unsafe"
 
-	"github.com/bankole7782/graphics143/basics"
 	"github.com/go-gl/gl/v4.1-core/gl"
-	"github.com/mazznoer/colorgrad"
 )
 
-type BorderSide int
+// You must have initialized glfw and gl before using this function
+func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs RectSpecs) {
+	imgProgram, shader1, shader2 := MakeProgram(TextureVertexShaderSrc, TextureFragmentShaderSrc)
+	vertices, indices := imageCoordinates(windowWidth, windowHeight, imageRectSpecs)
 
-const (
-	TOP BorderSide = iota
-	LEFT
-	BOTTOM
-	RIGHT
-)
-
-func DrawRectangle(windowWidth, windowHeight int, hexColor string, rectSpecs basics.RectSpecs) {
-	fragmentShaderSource, _ := basics.GetRectColorShader(hexColor)
-	rectProgram, shader1, shader2 := basics.MakeProgram(basics.BasicVertexShaderSource, fragmentShaderSource)
-	rectVertices := basics.RectangleToCoords(windowWidth, windowHeight, rectSpecs)
-	rectVAO := basics.MakeBasicVao(rectVertices)
-
-	gl.UseProgram(rectProgram)
-	gl.BindVertexArray(rectVAO)
-	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(rectVertices)/3))
-
-	gl.DeleteProgram(rectProgram)
-	gl.DeleteShader(shader1)
-	gl.DeleteShader(shader2)
-	gl.DeleteVertexArrays(1, &rectVAO)
-	gl.BindVertexArray(0)
-}
-
-func GetBorderSideRectangle(rectSpec basics.RectSpecs, borderSide BorderSide, borderDepth int) basics.RectSpecs {
-	if borderSide == LEFT {
-		return basics.RectSpecs{Width: borderDepth, Height: rectSpec.Height, OriginX: rectSpec.OriginX, OriginY: rectSpec.OriginY}
-	} else if borderSide == TOP {
-		return basics.RectSpecs{Width: rectSpec.Width, Height: borderDepth, OriginX: rectSpec.OriginX, OriginY: rectSpec.OriginY}
-	} else if borderSide == RIGHT {
-		return basics.RectSpecs{Width: borderDepth, Height: rectSpec.Height, OriginX: rectSpec.OriginX + rectSpec.Width - borderDepth, OriginY: rectSpec.OriginY}
-	} else {
-		return basics.RectSpecs{Width: rectSpec.Width, Height: borderDepth, OriginX: rectSpec.OriginX, OriginY: rectSpec.OriginY + rectSpec.Height - borderDepth}
-	}
-}
-
-func GetInsetRectangle(rectSpec basics.RectSpecs, borderDepth int) basics.RectSpecs {
-	return basics.RectSpecs{
-		Width:   rectSpec.Width - 2*borderDepth,
-		Height:  rectSpec.Height - 2*borderDepth,
-		OriginX: rectSpec.OriginX + borderDepth,
-		OriginY: rectSpec.OriginY + borderDepth,
-	}
-}
-
-func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs basics.RectSpecs) {
-	imgProgram, shader1, shader2 := basics.MakeProgram(basics.TextureVertexShaderSrc, basics.TextureFragmentShaderSrc)
-	vertices, indices := basics.ImageCoordinates(windowWidth, windowHeight, imageRectSpecs)
-
-	VAO := basics.MakeImageVAO(vertices, indices)
-	texture0, err := basics.NewTexture(img, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
+	VAO := makeImageVAO(vertices, indices)
+	texture0, err := newTexture(img, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -71,7 +22,7 @@ func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs ba
 	gl.UseProgram(imgProgram)
 	// set texture0 to uniform0 in the fragment shader
 	texture0.Bind(gl.TEXTURE0)
-	uniform1 := basics.GetUniformLocation(imgProgram, "ourTexture0")
+	uniform1 := getUniformLocation(imgProgram, "ourTexture0")
 	texture0.SetUniform(uniform1)
 
 	gl.BindVertexArray(VAO)
@@ -90,29 +41,77 @@ func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs ba
 
 }
 
-func DrawRectangleGradient(windowWidth, windowHeight int, hexColors []string, rectSpecs basics.RectSpecs) {
-	grad, _ := colorgrad.NewGradient().
-		HtmlColors(hexColors...).
-		Build()
-
-	img := image.NewRGBA(image.Rect(0, 0, rectSpecs.Width, rectSpecs.Height))
-
-	for x := 0; x < rectSpecs.Width; x++ {
-		col := grad.At(float64(x) / float64(rectSpecs.Width))
-		for y := 0; y < rectSpecs.Height; y++ {
-			img.Set(x, y, col)
-		}
-	}
-
-	DrawImage(windowWidth, windowHeight, img, rectSpecs)
-}
-
 // useful for mouse events
-func InRectSpecs(rectSpecs basics.RectSpecs, xPos, yPos int) bool {
+func InRectSpecs(rectSpecs RectSpecs, xPos, yPos int) bool {
 	if (xPos > rectSpecs.OriginX) && (xPos < rectSpecs.Width+rectSpecs.OriginX) &&
 		(yPos > rectSpecs.OriginY) && (yPos < rectSpecs.Height+rectSpecs.OriginY) {
 		return true
 	}
 
 	return false
+}
+
+type RectSpecs struct {
+	Width   int
+	Height  int
+	OriginX int
+	OriginY int
+}
+
+// the outputs of this is good for gl.DrawElements
+func rectangleToCoords2(windowWidth, windowHeight int, rectSpec RectSpecs) ([]float32, []uint32) {
+
+	point1X := XtoFloat(rectSpec.OriginX, windowWidth)
+	point1Y := YtoFloat(rectSpec.OriginY, windowHeight)
+
+	point2X := XtoFloat(rectSpec.OriginX+rectSpec.Width, windowWidth)
+	point2Y := YtoFloat(rectSpec.OriginY+rectSpec.Height, windowHeight)
+
+	// retFloat32 := []float32{
+	// 	// first triangle
+	// 	point1X, point1Y, 0,
+	// 	point1X, point2Y, 0,
+	// 	point2X, point2Y, 0,
+
+	// 	// second triangle
+	// 	point1X, point1Y, 0,
+	// 	point2X, point1Y, 0,
+	// 	point2X, point2Y, 0,
+	// }
+
+	retVertices := []float32{
+		point1X, point1Y, 0,
+		point1X, point2Y, 0,
+		point2X, point2Y, 0,
+		point2X, point1Y, 0,
+	}
+
+	retIndices := []uint32{
+		0, 1, 2,
+		0, 2, 3,
+	}
+
+	return retVertices, retIndices
+}
+
+// the outputs of this is good for gl.DrawElements
+func imageCoordinates(windowWidth, windowHeight int, rectSpec RectSpecs) ([]float32, []uint32) {
+	tmpVertices, indices := rectangleToCoords2(windowWidth, windowHeight, rectSpec)
+	v1 := tmpVertices
+	// inject texture coordinates
+	vertices := []float32{
+		v1[0], v1[1], v1[2], // vertices position
+		1.0, 0.0, // texture coordinates
+
+		v1[3], v1[4], v1[5],
+		1.0, 1.0,
+
+		v1[6], v1[7], v1[8],
+		0.0, 1.0,
+
+		v1[9], v1[10], v1[11],
+		0.0, 0.0,
+	}
+
+	return vertices, indices
 }
