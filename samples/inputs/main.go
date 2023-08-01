@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"runtime"
 	"time"
 
@@ -10,8 +11,10 @@ import (
 
 	g143 "github.com/bankole7782/graphics143"
 	"github.com/bankole7782/graphics143/basics"
+	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"github.com/sqweek/dialog"
 )
 
 const (
@@ -29,11 +32,14 @@ type DoneBtn struct {
 }
 
 var objCoords map[basics.RectSpecs]any
+var currentWindowFrame image.Image
+var inputsStore map[string]string
 
 func main() {
 	runtime.LockOSThread()
 
 	objCoords = make(map[basics.RectSpecs]any)
+	inputsStore = make(map[string]string)
 
 	window := g143.NewWindow(800, 600, "an inputs program (sample)", false)
 	allDraws(window)
@@ -58,6 +64,8 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 	xPosInt := int(xPos)
 	yPosInt := int(yPos)
 
+	wWidth, wHeight := window.GetSize()
+
 	var objRS basics.RectSpecs
 	var obj any
 
@@ -75,6 +83,26 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 		switch widgetClass := obj.(type) {
 		case ImagePicker:
 			fmt.Println("image picker")
+			filename, err := dialog.File().Filter("Passport file", "jpg").Load()
+			if err != nil {
+				return
+			}
+			inputsStore["passport"] = filename
+
+			// show picked image
+			ggCtx := gg.NewContextForImage(currentWindowFrame)
+
+			img, _ := imaging.Open(filename)
+			img = imaging.Resize(img, objRS.Width-20, objRS.Height-20, imaging.Lanczos)
+			ggCtx.DrawImage(img, objRS.OriginX+10, objRS.OriginY+10)
+
+			// send the frame to glfw window
+			windowRS := basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+			g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+			window.SwapBuffers()
+
+			// save the frame
+			currentWindowFrame = ggCtx.Image()
 		case DoneBtn:
 			fmt.Println("done btn")
 		case TextEntry:
@@ -109,6 +137,10 @@ func allDraws(window *glfw.Window) {
 	ggCtx.SetHexColor("#dddddd")
 	ggCtx.Fill()
 
+	// save valuable coordinates
+	prs := basics.RectSpecs{Width: 200, Height: 200, OriginX: 20, OriginY: 70}
+	objCoords[prs] = ImagePicker{}
+
 	err = ggCtx.LoadFontFace("Roboto-Light.ttf", 20)
 	if err != nil {
 		panic(err)
@@ -127,8 +159,13 @@ func allDraws(window *glfw.Window) {
 
 		// draw border input
 		ggCtx.SetHexColor("#ddd")
-		ggCtx.DrawRectangle(260+longestFieldX+20, 100+float64(i*50), 350, 40)
+		iBoxX, iBoxY := 260+longestFieldX+20, 100+float64(i*50)
+		iBoxWidth, iBoxHeight := 350, 40
+		ggCtx.DrawRectangle(iBoxX, iBoxY, float64(iBoxWidth), float64(iBoxHeight))
 		ggCtx.Fill()
+
+		ibrs := basics.RectSpecs{Width: iBoxWidth, Height: iBoxHeight, OriginX: int(iBoxX), OriginY: int(iBoxY)}
+		objCoords[ibrs] = TextEntry{i}
 
 		ggCtx.SetHexColor("#fff")
 		ggCtx.DrawRectangle(260+longestFieldX+20+5, 100+5+float64(i*50), 340, 30)
@@ -154,8 +191,14 @@ func allDraws(window *glfw.Window) {
 	btnTextX := btnBGX + float64(float64(btnBGWidth)-btnTextWidth)/2.0
 	ggCtx.DrawString(btnText, btnTextX, 300+40)
 
+	bgBtnTextRS := basics.RectSpecs{Width: btnBGWidth, Height: int(btnBGX), OriginY: 300}
+	objCoords[bgBtnTextRS] = DoneBtn{}
+
 	// send the frame to glfw window
 	windowRS := basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 	window.SwapBuffers()
+
+	// save the frame
+	currentWindowFrame = ggCtx.Image()
 }
