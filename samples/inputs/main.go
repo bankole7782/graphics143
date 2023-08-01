@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"runtime"
+	"strconv"
 	"time"
 
 	_ "image/jpeg"
@@ -34,6 +35,8 @@ type DoneBtn struct {
 var objCoords map[basics.RectSpecs]any
 var currentWindowFrame image.Image
 var inputsStore map[string]string
+var activeEntryIndex int
+var enteredText string
 
 func main() {
 	runtime.LockOSThread()
@@ -46,6 +49,8 @@ func main() {
 
 	// respond to the mouse
 	window.SetMouseButtonCallback(mouseBtnCallback)
+	window.SetKeyCallback(keyCallback)
+
 	for !window.ShouldClose() {
 		t := time.Now()
 		glfw.PollEvents()
@@ -77,12 +82,9 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 		}
 	}
 
-	_ = objRS
-
 	if obj != nil {
 		switch widgetClass := obj.(type) {
 		case ImagePicker:
-			fmt.Println("image picker")
 			filename, err := dialog.File().Filter("Passport file", "jpg").Load()
 			if err != nil {
 				return
@@ -106,10 +108,107 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 		case DoneBtn:
 			fmt.Println("done btn")
 		case TextEntry:
-			fmt.Println("text entry")
-			fmt.Println(widgetClass.Index)
+			// switching where the keys would be placed.
+			if widgetClass.Index != activeEntryIndex {
+				oldText, ok := inputsStore[strconv.Itoa(widgetClass.Index)]
+				inputsStore[strconv.Itoa(widgetClass.Index)] = enteredText
+				if ok {
+					enteredText = oldText
+				} else {
+					enteredText = ""
+				}
+			}
+			activeEntryIndex = widgetClass.Index
+
+			ggCtx := gg.NewContextForImage(currentWindowFrame)
+
+			// draw border input
+			ggCtx.SetHexColor("#63D171")
+
+			ggCtx.DrawRectangle(float64(objRS.OriginX), float64(objRS.OriginY), float64(objRS.Width), float64(objRS.Height))
+			ggCtx.Fill()
+
+			ggCtx.SetHexColor("#fff")
+			ggCtx.DrawRectangle(float64(objRS.OriginX+5), float64(objRS.OriginY+5), 340, 30)
+			ggCtx.Fill()
+
+			// send the frame to glfw window
+			windowRS := basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+			g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+			window.SwapBuffers()
+
+			// save the frame
+			currentWindowFrame = ggCtx.Image()
+		default:
+			activeEntryIndex = 0
 		}
 	}
+}
+
+func isKeyNumeric(key glfw.Key) bool {
+	numKeys := []glfw.Key{glfw.Key0, glfw.Key1, glfw.Key2, glfw.Key3, glfw.Key4,
+		glfw.Key5, glfw.Key6, glfw.Key7, glfw.Key8, glfw.Key9}
+
+	for _, numKey := range numKeys {
+		if key == numKey {
+			return true
+		}
+	}
+
+	return false
+}
+
+func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+	if action != glfw.Release {
+		return
+	}
+
+	wWidth, wHeight := window.GetSize()
+
+	var objRS basics.RectSpecs
+	for k, v := range objCoords {
+		textEntry, ok := v.(TextEntry)
+		if ok && textEntry.Index == activeEntryIndex {
+			objRS = k
+			break
+		}
+	}
+
+	if activeEntryIndex == 1 {
+		if key == glfw.KeyBackspace {
+			enteredText = enteredText[:len(enteredText)-1]
+		} else {
+			enteredText += glfw.GetKeyName(key, scancode)
+		}
+	} else if activeEntryIndex == 2 {
+		// enforce number types
+		if isKeyNumeric(key) {
+			enteredText += glfw.GetKeyName(key, scancode)
+		} else if key == glfw.KeyBackspace {
+			enteredText = enteredText[:len(enteredText)-1]
+		}
+	}
+
+	ggCtx := gg.NewContextForImage(currentWindowFrame)
+	err := ggCtx.LoadFontFace("Roboto-Light.ttf", 20)
+	if err != nil {
+		panic(err)
+	}
+
+	ggCtx.SetHexColor("#fff")
+	ggCtx.DrawRectangle(float64(objRS.OriginX+5), float64(objRS.OriginY+5), 340, 30)
+	ggCtx.Fill()
+
+	ggCtx.SetHexColor("#444444")
+	ggCtx.DrawString(enteredText, float64(objRS.OriginX+25), float64(objRS.OriginY+25))
+
+	// send the frame to glfw window
+	windowRS := basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+	window.SwapBuffers()
+
+	// save the frame
+	currentWindowFrame = ggCtx.Image()
 }
 
 func allDraws(window *glfw.Window) {
@@ -165,7 +264,7 @@ func allDraws(window *glfw.Window) {
 		ggCtx.Fill()
 
 		ibrs := basics.RectSpecs{Width: iBoxWidth, Height: iBoxHeight, OriginX: int(iBoxX), OriginY: int(iBoxY)}
-		objCoords[ibrs] = TextEntry{i}
+		objCoords[ibrs] = TextEntry{i + 1}
 
 		ggCtx.SetHexColor("#fff")
 		ggCtx.DrawRectangle(260+longestFieldX+20+5, 100+5+float64(i*50), 340, 30)
