@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"runtime"
 	"strconv"
@@ -106,7 +105,7 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 			// save the frame
 			currentWindowFrame = ggCtx.Image()
 		case DoneBtn:
-			fmt.Println("done btn")
+			window.SetShouldClose(true)
 		case TextEntry:
 			// switching where the keys would be placed.
 			if widgetClass.Index != activeEntryIndex {
