@@ -10,6 +10,7 @@ import (
 
 	g143 "github.com/bankole7782/graphics143"
 	"github.com/bankole7782/graphics143/basics"
+	"github.com/fogleman/gg"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
@@ -85,60 +86,76 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 
 func allDraws(window *glfw.Window) {
 	wWidth, wHeight := window.GetSize()
+
+	// frame buffer
+	ggCtx := gg.NewContext(wWidth, wHeight)
+
 	// background rectangle
-	g143.DrawRectangle(wWidth, wHeight, "#ffffff", basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0})
+	ggCtx.DrawRectangle(0, 0, float64(wWidth), float64(wHeight))
+	ggCtx.SetHexColor("#ffffff")
+	ggCtx.Fill()
 
 	// intro text
+	err := ggCtx.LoadFontFace("Roboto-Light.ttf", 30)
+	if err != nil {
+		panic(err)
+	}
+	ggCtx.SetHexColor("#444444")
 	introText := "An Inputs Program (Sample)"
-	textWidth2 := g143.MeasureText(introText, g143.DefaultFontBytes, 60)
-	trs2 := basics.RectSpecs{Width: textWidth2, Height: 80, OriginX: 10, OriginY: 10}
-	g143.DrawString(wWidth, wHeight, introText, "#444444", &g143.DefaultFontBytes, 40, trs2)
+	ggCtx.DrawString(introText, 20, 40)
 
-	// passport input
-	prs := basics.RectSpecs{Width: 200, Height: 200, OriginX: 10, OriginY: 100}
-	g143.DrawRectangle(wWidth, wHeight, "#dddddd", prs)
+	// draw passport Rectangle
+	ggCtx.DrawRectangle(20, 70, 200, 200)
+	ggCtx.SetHexColor("#dddddd")
+	ggCtx.Fill()
+
+	err = ggCtx.LoadFontFace("Roboto-Light.ttf", 20)
+	if err != nil {
+		panic(err)
+	}
 	passportMsgText := []string{"Click to ", "pick passport"}
-	tprs := g143.GetInsetRectangle(prs, 20)
-	g143.DrawString(wWidth, wHeight, passportMsgText[0], "#444444", &g143.DefaultFontBytes, g143.DEFAULT_FONT_SIZE, tprs)
-	tprs2 := tprs
-	tprs2.OriginY += 30
-	g143.DrawString(wWidth, wHeight, passportMsgText[1], "#444444", &g143.DefaultFontBytes, g143.DEFAULT_FONT_SIZE, tprs2)
-
-	objCoords[prs] = ImagePicker{}
+	ggCtx.SetHexColor("#444444")
+	ggCtx.DrawString(passportMsgText[0], 40, 110)
+	ggCtx.DrawString(passportMsgText[1], 40, 130)
 
 	// other inputs
+	labels := []string{"Name:", "Age:"}
+	longestFieldX, _ := ggCtx.MeasureString(labels[0])
+	for i, label := range labels {
+		ggCtx.SetHexColor("#444444")
+		ggCtx.DrawString(label, 260, 120+float64(i*50))
 
-	fields := []string{"Name:", "Age:"}
+		// draw border input
+		ggCtx.SetHexColor("#ddd")
+		ggCtx.DrawRectangle(260+longestFieldX+20, 100+float64(i*50), 350, 40)
+		ggCtx.Fill()
 
-	longestFieldSize := g143.MeasureText(fields[0], g143.DefaultFontBytes, g143.DEFAULT_FONT_SIZE)
-	for i, f := range fields {
-		// inputs label
-		ftextSize := g143.MeasureText(f, g143.DefaultFontBytes, g143.DEFAULT_FONT_SIZE)
-		trs2 := basics.RectSpecs{Width: ftextSize, Height: 30, OriginX: 240, OriginY: i*60 + 100}
-		g143.DrawString(wWidth, wHeight, f, "#444444", &g143.DefaultFontBytes, g143.DEFAULT_FONT_SIZE, trs2)
+		ggCtx.SetHexColor("#fff")
+		ggCtx.DrawRectangle(260+longestFieldX+20+5, 100+5+float64(i*50), 340, 30)
+		ggCtx.Fill()
 
-		// inputs box
-		ibrs := basics.RectSpecs{Width: 300, Height: 40, OriginX: trs2.OriginX + longestFieldSize + 20,
-			OriginY: trs2.OriginY}
-
-		g143.DrawRectangle(wWidth, wHeight, "#dddddd", ibrs)
-		insetIbrs := g143.GetInsetRectangle(ibrs, 2)
-		g143.DrawRectangle(wWidth, wHeight, "#ffffff", insetIbrs)
-
-		objCoords[ibrs] = TextEntry{i}
 	}
 
-	// final button
+	// submit button
+	err = ggCtx.LoadFontFace("Roboto-Light.ttf", 30)
+	if err != nil {
+		panic(err)
+	}
 	btnText := "Submit"
-	btnTextSize := g143.MeasureText(btnText, g143.DefaultFontBytes, g143.DEFAULT_FONT_SIZE*2)
-	bgBtnTextRS := basics.RectSpecs{Width: btnTextSize + 40, Height: 80, OriginY: 320}
-	bgBtnTextRS.OriginX = (wWidth - bgBtnTextRS.Width) / 2
+	btnTextWidth, btnTextHeight := ggCtx.MeasureString(btnText)
+	btnBGWidth := wWidth - 100
+	btnBGHeight := btnTextHeight + 40
+	btnBGX := (float64(wWidth-btnBGWidth) / 2.0)
 
-	btnTextRS := g143.GetInsetRectangle(bgBtnTextRS, 20)
+	ggCtx.SetHexColor("#D5A2A2")
+	ggCtx.DrawRoundedRectangle(btnBGX, 300, float64(btnBGWidth), btnBGHeight, 30)
+	ggCtx.Fill()
+	ggCtx.SetHexColor("#fff")
+	btnTextX := btnBGX + float64(float64(btnBGWidth)-btnTextWidth)/2.0
+	ggCtx.DrawString(btnText, btnTextX, 300+40)
 
-	g143.DrawRectangle(wWidth, wHeight, "#D5A2A2", bgBtnTextRS)
-	g143.DrawString(wWidth, wHeight, btnText, "#444444", &g143.DefaultFontBytes, g143.DEFAULT_FONT_SIZE*2, btnTextRS)
-
-	objCoords[bgBtnTextRS] = DoneBtn{}
+	// send the frame to glfw window
+	windowRS := basics.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 	window.SwapBuffers()
 }
