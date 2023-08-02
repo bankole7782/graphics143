@@ -23,16 +23,30 @@ type EraserWidget struct{}
 
 type SaveWidget struct{}
 
+type CanvasWidget struct{}
+
+type CircleSpec struct {
+	X int
+	Y int
+	R int
+}
+
+var drawnIndicators []CircleSpec
+var activeTool string
+
 func main() {
 	runtime.LockOSThread()
 
 	objCoords = make(map[g143.RectSpecs]any)
+	drawnIndicators = make([]CircleSpec, 0)
 
 	window := g143.NewWindow(1100, 600, "a draw tool (sample)", false)
 	allDraws(window)
 
 	// respond to the mouse
 	window.SetMouseButtonCallback(mouseBtnCallback)
+	// respond to mouse movement
+	window.SetCursorPosCallback(cursorPosCallback)
 
 	for !window.ShouldClose() {
 		t := time.Now()
@@ -111,6 +125,9 @@ func allDraws(window *glfw.Window) {
 	ggCtx.DrawRectangle(200, 60, 800, 500)
 	ggCtx.Fill()
 
+	canvasRS := g143.RectSpecs{Width: 800, Height: 500, OriginX: 200, OriginY: 60}
+	objCoords[canvasRS] = CanvasWidget{}
+
 	// send the frame to glfw window
 	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
@@ -122,4 +139,118 @@ func allDraws(window *glfw.Window) {
 
 func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
 
+	xPos, yPos := window.GetCursorPos()
+	xPosInt := int(xPos)
+	yPosInt := int(yPos)
+
+	wWidth, wHeight := window.GetSize()
+
+	var objRS g143.RectSpecs
+	var obj any
+
+	for rs, anyObj := range objCoords {
+		if g143.InRectSpecs(rs, xPosInt, yPosInt) {
+			objRS = rs
+			obj = anyObj
+			break
+		}
+	}
+
+	if obj != nil {
+		switch obj.(type) {
+
+		case PencilWidget:
+
+			if action == glfw.Release {
+				ggCtx := gg.NewContextForImage(currentWindowFrame)
+
+				activeTool = "P"
+
+				// clear indicators
+				for _, cs := range drawnIndicators {
+					ggCtx.SetHexColor("#dddddd")
+					ggCtx.DrawCircle(float64(cs.X), float64(cs.Y), float64(cs.R))
+					ggCtx.Fill()
+				}
+				// draw an indicator on the active tool
+				ggCtx.SetHexColor("#DAC166")
+				ggCtx.DrawCircle(float64(objRS.OriginX+objRS.Width-20), float64(objRS.OriginY+20), 10)
+				ggCtx.Fill()
+				drawnIndicators = append(drawnIndicators, CircleSpec{X: objRS.OriginX + objRS.Width - 20, Y: objRS.OriginY + 20, R: 10})
+
+				// send the frame to glfw window
+				windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+				g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+				window.SwapBuffers()
+
+				// save the frame
+				currentWindowFrame = ggCtx.Image()
+			}
+
+		case EraserWidget:
+			if action == glfw.Release {
+				ggCtx := gg.NewContextForImage(currentWindowFrame)
+
+				activeTool = "E"
+
+				// clear indicators
+				for _, cs := range drawnIndicators {
+					ggCtx.SetHexColor("#dddddd")
+					ggCtx.DrawCircle(float64(cs.X), float64(cs.Y), float64(cs.R))
+					ggCtx.Fill()
+				}
+				// draw an indicator on the active tool
+				ggCtx.SetHexColor("#DAC166")
+				ggCtx.DrawCircle(float64(objRS.OriginX+objRS.Width-20), float64(objRS.OriginY+20), 10)
+				ggCtx.Fill()
+				drawnIndicators = append(drawnIndicators, CircleSpec{X: objRS.OriginX + objRS.Width - 20, Y: objRS.OriginY + 20, R: 10})
+
+				// send the frame to glfw window
+				windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+				g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+				window.SwapBuffers()
+
+				// save the frame
+				currentWindowFrame = ggCtx.Image()
+			}
+
+		case SaveWidget:
+
+		default:
+
+		}
+	}
+
+}
+
+func cursorPosCallback(window *glfw.Window, xpos float64, ypos float64) {
+	wWidth, wHeight := window.GetSize()
+
+	ggCtx := gg.NewContextForImage(currentWindowFrame)
+
+	var canvasRS g143.RectSpecs
+	for rs, obj := range objCoords {
+		_, ok := obj.(CanvasWidget)
+		if ok {
+			canvasRS = rs
+			break
+		}
+	}
+
+	currentMouseAction := window.GetMouseButton(glfw.MouseButtonLeft)
+
+	if g143.InRectSpecs(canvasRS, int(xpos), int(ypos)) && currentMouseAction == glfw.Press && activeTool == "P" {
+		// draw circles
+		ggCtx.SetHexColor("#222222")
+		ggCtx.DrawCircle(xpos, ypos, 3)
+		ggCtx.Fill()
+	}
+
+	// send the frame to glfw window
+	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+	window.SwapBuffers()
+
+	// save the frame
+	currentWindowFrame = ggCtx.Image()
 }
