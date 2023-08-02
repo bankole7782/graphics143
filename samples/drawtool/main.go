@@ -239,11 +239,17 @@ func cursorPosCallback(window *glfw.Window, xpos float64, ypos float64) {
 
 	currentMouseAction := window.GetMouseButton(glfw.MouseButtonLeft)
 
-	if g143.InRectSpecs(canvasRS, int(xpos), int(ypos)) && currentMouseAction == glfw.Press && activeTool == "P" {
-		// draw circles
-		ggCtx.SetHexColor("#222222")
-		ggCtx.DrawCircle(xpos, ypos, 3)
-		ggCtx.Fill()
+	if g143.InRectSpecs(canvasRS, int(xpos), int(ypos)) && currentMouseAction == glfw.Press {
+		if activeTool == "P" {
+			// draw circles
+			ggCtx.SetHexColor("#222222")
+			ggCtx.DrawCircle(xpos, ypos, 3)
+			ggCtx.Fill()
+		} else {
+			ggCtx.SetHexColor("#ffffff")
+			ggCtx.DrawCircle(xpos, ypos, 10)
+			ggCtx.Fill()
+		}
 	}
 
 	// send the frame to glfw window
