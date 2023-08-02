@@ -28,7 +28,7 @@ func main() {
 
 	objCoords = make(map[g143.RectSpecs]any)
 
-	window := g143.NewWindow(1200, 600, "a draw tool (sample)", false)
+	window := g143.NewWindow(1100, 600, "a draw tool (sample)", false)
 	allDraws(window)
 
 	// respond to the mouse
@@ -105,6 +105,11 @@ func allDraws(window *glfw.Window) {
 
 	ggCtx.SetHexColor("#444444")
 	ggCtx.DrawString("Save", 40, 230)
+
+	// Canvas
+	ggCtx.SetHexColor("#ffffff")
+	ggCtx.DrawRectangle(200, 60, 800, 500)
+	ggCtx.Fill()
 
 	// send the frame to glfw window
 	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
