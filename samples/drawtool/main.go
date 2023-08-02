@@ -2,10 +2,12 @@ package main
 
 import (
 	"image"
+	"image/draw"
 	"runtime"
 	"time"
 
 	g143 "github.com/bankole7782/graphics143"
+	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
@@ -138,6 +140,9 @@ func allDraws(window *glfw.Window) {
 }
 
 func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
+	if action != glfw.Release {
+		return
+	}
 
 	xPos, yPos := window.GetCursorPos()
 	xPosInt := int(xPos)
@@ -161,61 +166,84 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 
 		case PencilWidget:
 
-			if action == glfw.Release {
-				ggCtx := gg.NewContextForImage(currentWindowFrame)
+			ggCtx := gg.NewContextForImage(currentWindowFrame)
 
-				activeTool = "P"
+			activeTool = "P"
 
-				// clear indicators
-				for _, cs := range drawnIndicators {
-					ggCtx.SetHexColor("#dddddd")
-					ggCtx.DrawCircle(float64(cs.X), float64(cs.Y), float64(cs.R))
-					ggCtx.Fill()
-				}
-				// draw an indicator on the active tool
-				ggCtx.SetHexColor("#DAC166")
-				ggCtx.DrawCircle(float64(objRS.OriginX+objRS.Width-20), float64(objRS.OriginY+20), 10)
+			// clear indicators
+			for _, cs := range drawnIndicators {
+				ggCtx.SetHexColor("#dddddd")
+				ggCtx.DrawCircle(float64(cs.X), float64(cs.Y), float64(cs.R))
 				ggCtx.Fill()
-				drawnIndicators = append(drawnIndicators, CircleSpec{X: objRS.OriginX + objRS.Width - 20, Y: objRS.OriginY + 20, R: 10})
-
-				// send the frame to glfw window
-				windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
-				g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
-				window.SwapBuffers()
-
-				// save the frame
-				currentWindowFrame = ggCtx.Image()
 			}
+			// draw an indicator on the active tool
+			ggCtx.SetHexColor("#DAC166")
+			ggCtx.DrawCircle(float64(objRS.OriginX+objRS.Width-20), float64(objRS.OriginY+20), 10)
+			ggCtx.Fill()
+			drawnIndicators = append(drawnIndicators, CircleSpec{X: objRS.OriginX + objRS.Width - 20, Y: objRS.OriginY + 20, R: 10})
+
+			// send the frame to glfw window
+			windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+			g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+			window.SwapBuffers()
+
+			// save the frame
+			currentWindowFrame = ggCtx.Image()
 
 		case EraserWidget:
-			if action == glfw.Release {
-				ggCtx := gg.NewContextForImage(currentWindowFrame)
+			ggCtx := gg.NewContextForImage(currentWindowFrame)
 
-				activeTool = "E"
+			activeTool = "E"
 
-				// clear indicators
-				for _, cs := range drawnIndicators {
-					ggCtx.SetHexColor("#dddddd")
-					ggCtx.DrawCircle(float64(cs.X), float64(cs.Y), float64(cs.R))
-					ggCtx.Fill()
-				}
-				// draw an indicator on the active tool
-				ggCtx.SetHexColor("#DAC166")
-				ggCtx.DrawCircle(float64(objRS.OriginX+objRS.Width-20), float64(objRS.OriginY+20), 10)
+			// clear indicators
+			for _, cs := range drawnIndicators {
+				ggCtx.SetHexColor("#dddddd")
+				ggCtx.DrawCircle(float64(cs.X), float64(cs.Y), float64(cs.R))
 				ggCtx.Fill()
-				drawnIndicators = append(drawnIndicators, CircleSpec{X: objRS.OriginX + objRS.Width - 20, Y: objRS.OriginY + 20, R: 10})
-
-				// send the frame to glfw window
-				windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
-				g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
-				window.SwapBuffers()
-
-				// save the frame
-				currentWindowFrame = ggCtx.Image()
 			}
+			// draw an indicator on the active tool
+			ggCtx.SetHexColor("#DAC166")
+			ggCtx.DrawCircle(float64(objRS.OriginX+objRS.Width-20), float64(objRS.OriginY+20), 10)
+			ggCtx.Fill()
+			drawnIndicators = append(drawnIndicators, CircleSpec{X: objRS.OriginX + objRS.Width - 20, Y: objRS.OriginY + 20, R: 10})
+
+			// send the frame to glfw window
+			windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+			g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+			window.SwapBuffers()
+
+			// save the frame
+			currentWindowFrame = ggCtx.Image()
 
 		case SaveWidget:
+			ggCtx := gg.NewContextForImage(currentWindowFrame)
+			activeTool = ""
 
+			// clear indicators
+			for _, cs := range drawnIndicators {
+				ggCtx.SetHexColor("#dddddd")
+				ggCtx.DrawCircle(float64(cs.X), float64(cs.Y), float64(cs.R))
+				ggCtx.Fill()
+			}
+
+			var canvasRS g143.RectSpecs
+			for rs, obj := range objCoords {
+				_, ok := obj.(CanvasWidget)
+				if ok {
+					canvasRS = rs
+					break
+				}
+			}
+
+			canvasRectGolang := image.Rectangle{
+				Min: image.Pt(canvasRS.OriginX, canvasRS.OriginY),
+				Max: image.Pt(canvasRS.OriginX+canvasRS.Width, canvasRS.OriginY+canvasRS.Height),
+			}
+
+			outImg := image.NewRGBA(image.Rect(0, 0, canvasRS.Width, canvasRS.Height))
+			draw.Draw(outImg, canvasRectGolang, currentWindowFrame, image.Pt(canvasRS.OriginX, canvasRS.OriginY), draw.Src)
+
+			imaging.Save(outImg, time.Now().Format("20060102T150405MST")+".png")
 		default:
 
 		}
