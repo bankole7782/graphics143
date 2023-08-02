@@ -1,6 +1,3 @@
 # graphics143
-build your own widgets (incomplete)
 
-
-## Notes
-Each drawn object needs its own opengl program
+a library that provides little functions with building your own widgets

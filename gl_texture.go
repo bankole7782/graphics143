@@ -5,36 +5,19 @@ import (
 	"image/draw"
 	_ "image/jpeg"
 	_ "image/png"
-	"os"
 
 	"github.com/disintegration/imaging"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/pkg/errors"
 )
 
-type TextureT struct {
+type textureT struct {
 	handle  uint32
 	target  uint32 // same target as gl.BindTexture(<this param>, ...)
 	texUnit uint32 // Texture unit that is currently bound to ex: gl.TEXTURE0
 }
 
-func newTextureFromFile(file string, wrapR, wrapS int32) (*TextureT, error) {
-	imgFile, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer imgFile.Close()
-
-	// Decode detexts the type of image as long as its image/<type> is imported
-	img, _, err := image.Decode(imgFile)
-	if err != nil {
-		return nil, err
-	}
-
-	return newTexture(img, wrapR, wrapS)
-}
-
-func newTexture(img image.Image, wrapR, wrapS int32) (*TextureT, error) {
+func newTexture(img image.Image, wrapR, wrapS int32) (*textureT, error) {
 	img = imaging.FlipH(img)
 
 	rgba := image.NewRGBA(img.Bounds())
@@ -54,7 +37,7 @@ func newTexture(img image.Image, wrapR, wrapS int32) (*TextureT, error) {
 	pixType := uint32(gl.UNSIGNED_BYTE)
 	dataPtr := gl.Ptr(rgba.Pix)
 
-	texture := TextureT{
+	texture := textureT{
 		handle: handle,
 		target: target,
 	}
@@ -76,18 +59,18 @@ func newTexture(img image.Image, wrapR, wrapS int32) (*TextureT, error) {
 	return &texture, nil
 }
 
-func (tex *TextureT) Bind(texUnit uint32) {
+func (tex *textureT) Bind(texUnit uint32) {
 	gl.ActiveTexture(texUnit)
 	gl.BindTexture(tex.target, tex.handle)
 	tex.texUnit = texUnit
 }
 
-func (tex *TextureT) UnBind() {
+func (tex *textureT) UnBind() {
 	tex.texUnit = 0
 	gl.BindTexture(tex.target, 0)
 }
 
-func (tex *TextureT) SetUniform(uniformLoc int32) error {
+func (tex *textureT) SetUniform(uniformLoc int32) error {
 	if tex.texUnit == 0 {
 		return errors.New("texture not bound")
 	}
@@ -95,7 +78,7 @@ func (tex *TextureT) SetUniform(uniformLoc int32) error {
 	return nil
 }
 
-func (tex *TextureT) Delete() {
+func (tex *textureT) Delete() {
 	gl.DeleteTextures(1, &tex.handle)
 }
 
