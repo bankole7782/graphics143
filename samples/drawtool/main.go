@@ -235,13 +235,9 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 				}
 			}
 
-			canvasRectGolang := image.Rectangle{
-				Min: image.Pt(canvasRS.OriginX, canvasRS.OriginY),
-				Max: image.Pt(canvasRS.OriginX+canvasRS.Width, canvasRS.OriginY+canvasRS.Height),
-			}
-
-			outImg := image.NewRGBA(image.Rect(0, 0, canvasRS.Width, canvasRS.Height))
-			draw.Draw(outImg, canvasRectGolang, currentWindowFrame, image.Pt(canvasRS.OriginX, canvasRS.OriginY), draw.Src)
+			newImageRect := image.Rect(0, 0, canvasRS.Width, canvasRS.Height)
+			outImg := image.NewRGBA(newImageRect)
+			draw.Draw(outImg, newImageRect, currentWindowFrame, image.Pt(canvasRS.OriginX, canvasRS.OriginY), draw.Src)
 
 			imaging.Save(outImg, time.Now().Format("20060102T150405MST")+".png")
 		default:
