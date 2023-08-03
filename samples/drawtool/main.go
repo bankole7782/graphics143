@@ -35,6 +35,7 @@ type CircleSpec struct {
 
 var drawnIndicators []CircleSpec
 var activeTool string
+var lastX, lastY float64 // used in drawing
 
 func main() {
 	runtime.LockOSThread()
@@ -263,12 +264,26 @@ func cursorPosCallback(window *glfw.Window, xpos float64, ypos float64) {
 
 	currentMouseAction := window.GetMouseButton(glfw.MouseButtonLeft)
 
+	if currentMouseAction == glfw.Release {
+		lastX, lastY = 0.0, 0.0
+	}
+
 	if g143.InRectSpecs(canvasRS, int(xpos), int(ypos)) && currentMouseAction == glfw.Press {
 		if activeTool == "P" {
 			// draw circles
 			ggCtx.SetHexColor("#222222")
-			ggCtx.DrawCircle(xpos, ypos, 3)
-			ggCtx.Fill()
+
+			if int(lastX) != 0 {
+				ggCtx.SetLineWidth(3)
+				ggCtx.MoveTo(lastX, lastY)
+				ggCtx.LineTo(xpos, ypos)
+				ggCtx.Stroke()
+			} else {
+				ggCtx.DrawCircle(xpos, ypos, 3)
+				ggCtx.Fill()
+			}
+
+			lastX, lastY = xpos, ypos
 		} else {
 			ggCtx.SetHexColor("#ffffff")
 			ggCtx.DrawCircle(xpos, ypos, 10)
