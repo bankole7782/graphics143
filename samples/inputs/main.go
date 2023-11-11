@@ -3,7 +3,6 @@ package main
 import (
 	"image"
 	"runtime"
-	"strconv"
 	"time"
 
 	_ "image/jpeg"
@@ -18,28 +17,24 @@ import (
 
 const (
 	fps = 10
+
+	ImagePicker   = 101
+	TextEntryName = 102
+	TextEntryAge  = 103
+	DoneBtn       = 104
 )
 
-type ImagePicker struct {
-}
-
-type TextEntry struct {
-	Index int
-}
-
-type DoneBtn struct {
-}
-
-var objCoords map[g143.RectSpecs]any
+var objCoords map[int]g143.RectSpecs
 var currentWindowFrame image.Image
 var inputsStore map[string]string
 var activeEntryIndex int
-var enteredText string
+var enteredTextName string
+var enteredTextAge string
 
 func main() {
 	runtime.LockOSThread()
 
-	objCoords = make(map[g143.RectSpecs]any)
+	objCoords = make(map[int]g143.RectSpecs)
 	inputsStore = make(map[string]string)
 
 	window := g143.NewWindow(800, 600, "an inputs program (sample)", false)
@@ -56,157 +51,6 @@ func main() {
 		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
 	}
 
-}
-
-func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
-
-	if action != glfw.Release {
-		return
-	}
-	xPos, yPos := window.GetCursorPos()
-	xPosInt := int(xPos)
-	yPosInt := int(yPos)
-
-	wWidth, wHeight := window.GetSize()
-
-	var objRS g143.RectSpecs
-	var obj any
-
-	for rs, anyObj := range objCoords {
-		if g143.InRectSpecs(rs, xPosInt, yPosInt) {
-			objRS = rs
-			obj = anyObj
-			break
-		}
-	}
-
-	if obj != nil {
-		switch widgetClass := obj.(type) {
-		case ImagePicker:
-			filename, err := dialog.File().Filter("Passport file", "jpg").Load()
-			if err != nil {
-				return
-			}
-			inputsStore["passport"] = filename
-
-			// show picked image
-			ggCtx := gg.NewContextForImage(currentWindowFrame)
-
-			img, _ := imaging.Open(filename)
-			img = imaging.Resize(img, objRS.Width-20, objRS.Height-20, imaging.Lanczos)
-			ggCtx.DrawImage(img, objRS.OriginX+10, objRS.OriginY+10)
-
-			// send the frame to glfw window
-			windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
-			g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
-			window.SwapBuffers()
-
-			// save the frame
-			currentWindowFrame = ggCtx.Image()
-		case DoneBtn:
-			window.SetShouldClose(true)
-		case TextEntry:
-			// switching where the keys would be placed.
-			if widgetClass.Index != activeEntryIndex {
-				oldText, ok := inputsStore[strconv.Itoa(widgetClass.Index)]
-				inputsStore[strconv.Itoa(widgetClass.Index)] = enteredText
-				if ok {
-					enteredText = oldText
-				} else {
-					enteredText = ""
-				}
-			}
-			activeEntryIndex = widgetClass.Index
-
-			ggCtx := gg.NewContextForImage(currentWindowFrame)
-
-			// draw border input
-			ggCtx.SetHexColor("#63D171")
-
-			ggCtx.DrawRectangle(float64(objRS.OriginX), float64(objRS.OriginY), float64(objRS.Width), float64(objRS.Height))
-			ggCtx.Fill()
-
-			ggCtx.SetHexColor("#fff")
-			ggCtx.DrawRectangle(float64(objRS.OriginX+5), float64(objRS.OriginY+5), 340, 30)
-			ggCtx.Fill()
-
-			// send the frame to glfw window
-			windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
-			g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
-			window.SwapBuffers()
-
-			// save the frame
-			currentWindowFrame = ggCtx.Image()
-		default:
-			activeEntryIndex = 0
-		}
-	}
-}
-
-func isKeyNumeric(key glfw.Key) bool {
-	numKeys := []glfw.Key{glfw.Key0, glfw.Key1, glfw.Key2, glfw.Key3, glfw.Key4,
-		glfw.Key5, glfw.Key6, glfw.Key7, glfw.Key8, glfw.Key9}
-
-	for _, numKey := range numKeys {
-		if key == numKey {
-			return true
-		}
-	}
-
-	return false
-}
-
-func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-	if action != glfw.Release {
-		return
-	}
-
-	wWidth, wHeight := window.GetSize()
-
-	var objRS g143.RectSpecs
-	for k, v := range objCoords {
-		textEntry, ok := v.(TextEntry)
-		if ok && textEntry.Index == activeEntryIndex {
-			objRS = k
-			break
-		}
-	}
-
-	if activeEntryIndex == 1 {
-		if key == glfw.KeyBackspace {
-			enteredText = enteredText[:len(enteredText)-1]
-		} else {
-			enteredText += glfw.GetKeyName(key, scancode)
-		}
-	} else if activeEntryIndex == 2 {
-		// enforce number types
-		if isKeyNumeric(key) {
-			enteredText += glfw.GetKeyName(key, scancode)
-		} else if key == glfw.KeyBackspace {
-			enteredText = enteredText[:len(enteredText)-1]
-		}
-	}
-
-	ggCtx := gg.NewContextForImage(currentWindowFrame)
-	err := ggCtx.LoadFontFace("Roboto-Light.ttf", 20)
-	if err != nil {
-		panic(err)
-	}
-
-	ggCtx.SetHexColor("#fff")
-	ggCtx.DrawRectangle(float64(objRS.OriginX+5), float64(objRS.OriginY+5), 340, 30)
-	ggCtx.Fill()
-
-	ggCtx.SetHexColor("#444444")
-	ggCtx.DrawString(enteredText, float64(objRS.OriginX+25), float64(objRS.OriginY+25))
-
-	// send the frame to glfw window
-	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
-	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
-	window.SwapBuffers()
-
-	// save the frame
-	currentWindowFrame = ggCtx.Image()
 }
 
 func allDraws(window *glfw.Window) {
@@ -236,7 +80,7 @@ func allDraws(window *glfw.Window) {
 
 	// save valuable coordinates
 	prs := g143.RectSpecs{Width: 200, Height: 200, OriginX: 20, OriginY: 70}
-	objCoords[prs] = ImagePicker{}
+	objCoords[ImagePicker] = prs
 
 	err = ggCtx.LoadFontFace("Roboto-Light.ttf", 20)
 	if err != nil {
@@ -262,7 +106,11 @@ func allDraws(window *glfw.Window) {
 		ggCtx.Fill()
 
 		ibrs := g143.RectSpecs{Width: iBoxWidth, Height: iBoxHeight, OriginX: int(iBoxX), OriginY: int(iBoxY)}
-		objCoords[ibrs] = TextEntry{i + 1}
+		if i == 0 {
+			objCoords[TextEntryName] = ibrs
+		} else {
+			objCoords[TextEntryAge] = ibrs
+		}
 
 		ggCtx.SetHexColor("#fff")
 		ggCtx.DrawRectangle(260+longestFieldX+20+5, 100+5+float64(i*50), 340, 30)
@@ -289,7 +137,167 @@ func allDraws(window *glfw.Window) {
 	ggCtx.DrawString(btnText, btnTextX, 300+40)
 
 	bgBtnTextRS := g143.RectSpecs{Width: btnBGWidth, Height: int(btnBGX), OriginY: 300}
-	objCoords[bgBtnTextRS] = DoneBtn{}
+	objCoords[DoneBtn] = bgBtnTextRS
+
+	// send the frame to glfw window
+	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+	window.SwapBuffers()
+
+	// save the frame
+	currentWindowFrame = ggCtx.Image()
+}
+
+func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
+
+	if action != glfw.Release {
+		return
+	}
+	xPos, yPos := window.GetCursorPos()
+	xPosInt := int(xPos)
+	yPosInt := int(yPos)
+
+	wWidth, wHeight := window.GetSize()
+
+	var widgetRS g143.RectSpecs
+	var widgetCode int
+
+	for code, RS := range objCoords {
+		if g143.InRectSpecs(RS, xPosInt, yPosInt) {
+			widgetRS = RS
+			widgetCode = code
+			break
+		}
+	}
+
+	if widgetCode == 0 {
+		return
+	}
+
+	switch widgetCode {
+
+	case ImagePicker:
+		filename, err := dialog.File().Filter("Passport file", "jpg").Load()
+		if err != nil {
+			return
+		}
+		inputsStore["passport"] = filename
+
+		// show picked image
+		ggCtx := gg.NewContextForImage(currentWindowFrame)
+
+		img, _ := imaging.Open(filename)
+		img = imaging.Resize(img, widgetRS.Width-20, widgetRS.Height-20, imaging.Lanczos)
+		ggCtx.DrawImage(img, widgetRS.OriginX+10, widgetRS.OriginY+10)
+
+		// send the frame to glfw window
+		windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+		g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+		window.SwapBuffers()
+
+		// save the frame
+		currentWindowFrame = ggCtx.Image()
+	case DoneBtn:
+		window.SetShouldClose(true)
+	case TextEntryName, TextEntryAge:
+		// switching where the keys would be placed.
+		// if widgetClass.Index != activeEntryIndex {
+		// 	oldText, ok := inputsStore[strconv.Itoa(widgetClass.Index)]
+		// 	inputsStore[strconv.Itoa(widgetClass.Index)] = enteredText
+		// 	if ok {
+		// 		enteredText = oldText
+		// 	} else {
+		// 		enteredText = ""
+		// 	}
+		// }
+		if widgetCode == TextEntryName {
+			activeEntryIndex = 1
+		} else if widgetCode == TextEntryAge {
+			activeEntryIndex = 2
+		}
+
+		ggCtx := gg.NewContextForImage(currentWindowFrame)
+
+		// draw border input
+		ggCtx.SetHexColor("#63D171")
+
+		ggCtx.DrawRectangle(float64(widgetRS.OriginX), float64(widgetRS.OriginY), float64(widgetRS.Width), float64(widgetRS.Height))
+		ggCtx.Fill()
+
+		ggCtx.SetHexColor("#fff")
+		ggCtx.DrawRectangle(float64(widgetRS.OriginX+5), float64(widgetRS.OriginY+5), 340, 30)
+		ggCtx.Fill()
+
+		// send the frame to glfw window
+		windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+		g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
+		window.SwapBuffers()
+
+		// save the frame
+		currentWindowFrame = ggCtx.Image()
+	default:
+		activeEntryIndex = 0
+	}
+}
+
+func isKeyNumeric(key glfw.Key) bool {
+	numKeys := []glfw.Key{glfw.Key0, glfw.Key1, glfw.Key2, glfw.Key3, glfw.Key4,
+		glfw.Key5, glfw.Key6, glfw.Key7, glfw.Key8, glfw.Key9}
+
+	for _, numKey := range numKeys {
+		if key == numKey {
+			return true
+		}
+	}
+
+	return false
+}
+
+func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+	if action != glfw.Release {
+		return
+	}
+
+	wWidth, wHeight := window.GetSize()
+
+	var widgetRS g143.RectSpecs
+	if activeEntryIndex == 1 {
+		widgetRS = objCoords[TextEntryName]
+	} else if activeEntryIndex == 2 {
+		widgetRS = objCoords[TextEntryAge]
+	}
+
+	if activeEntryIndex == 1 {
+		if key == glfw.KeyBackspace && len(enteredTextName) != 0 {
+			enteredTextName = enteredTextName[:len(enteredTextName)-1]
+		} else {
+			enteredTextName += glfw.GetKeyName(key, scancode)
+		}
+	} else if activeEntryIndex == 2 {
+		// enforce number types
+		if isKeyNumeric(key) {
+			enteredTextAge += glfw.GetKeyName(key, scancode)
+		} else if key == glfw.KeyBackspace && len(enteredTextAge) != 0 {
+			enteredTextAge = enteredTextAge[:len(enteredTextAge)-1]
+		}
+	}
+
+	ggCtx := gg.NewContextForImage(currentWindowFrame)
+	err := ggCtx.LoadFontFace("Roboto-Light.ttf", 20)
+	if err != nil {
+		panic(err)
+	}
+
+	ggCtx.SetHexColor("#fff")
+	ggCtx.DrawRectangle(float64(widgetRS.OriginX+5), float64(widgetRS.OriginY+5), 340, 30)
+	ggCtx.Fill()
+
+	ggCtx.SetHexColor("#444444")
+	if activeEntryIndex == 1 {
+		ggCtx.DrawString(enteredTextName, float64(widgetRS.OriginX+25), float64(widgetRS.OriginY+25))
+	} else if activeEntryIndex == 2 {
+		ggCtx.DrawString(enteredTextAge, float64(widgetRS.OriginX+25), float64(widgetRS.OriginY+25))
+	}
 
 	// send the frame to glfw window
 	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}

@@ -25,14 +25,6 @@ var objCoords map[int]g143.RectSpecs
 
 var currentWindowFrame image.Image
 
-// type PencilWidget struct{}
-
-// type EraserWidget struct{}
-
-// type SaveWidget struct{}
-
-// type CanvasWidget struct{}
-
 type CircleSpec struct {
 	X int
 	Y int
