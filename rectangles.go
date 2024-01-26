@@ -58,6 +58,10 @@ type RectSpecs struct {
 	OriginY int
 }
 
+func NRectSpecs(x, y, w, h int) RectSpecs {
+	return RectSpecs{Width: w, Height: h, OriginX: x, OriginY: y}
+}
+
 // the outputs of this is good for gl.DrawElements
 func rectangleToCoords2(windowWidth, windowHeight int, rectSpec RectSpecs) ([]float32, []uint32) {
 
