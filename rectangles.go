@@ -7,7 +7,9 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
+// DrawImage draws an image to a GLFW window.
 // You must have initialized glfw and gl before using this function
+// and created a window
 func DrawImage(windowWidth, windowHeight int, img image.Image, imageRect Rect) {
 	imgProgram, shader1, shader2 := makeProgram(textureVertexShaderSrc, textureFragmentShaderSrc)
 	vertices, indices := imageCoordinates(windowWidth, windowHeight, imageRect)
@@ -42,9 +44,9 @@ func DrawImage(windowWidth, windowHeight int, img image.Image, imageRect Rect) {
 }
 
 // useful for mouse events
-func InRect(Rect Rect, xPos, yPos int) bool {
-	if (xPos > Rect.OriginX) && (xPos < Rect.Width+Rect.OriginX) &&
-		(yPos > Rect.OriginY) && (yPos < Rect.Height+Rect.OriginY) {
+func InRect(aRect Rect, xPos, yPos int) bool {
+	if (xPos > aRect.OriginX) && (xPos < aRect.Width+aRect.OriginX) &&
+		(yPos > aRect.OriginY) && (yPos < aRect.Height+aRect.OriginY) {
 		return true
 	}
 
