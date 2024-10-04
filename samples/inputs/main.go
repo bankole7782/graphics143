@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	fps = 10
+	fps = 24
 
 	ImagePicker   = 101
 	TextEntryName = 102

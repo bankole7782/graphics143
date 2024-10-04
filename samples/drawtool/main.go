@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	fps          = 10
+	fps          = 24
 	PencilWidget = 101
 	EraserWidget = 102
 	SaveWidget   = 103

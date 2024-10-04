@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	fps = 10
+	fps = 24
 
 	BEGIN_WIDTH  = 1000
 	BEGIN_HEIGHT = 600
