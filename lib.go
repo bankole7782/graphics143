@@ -6,12 +6,12 @@ import (
 )
 
 // Converts Pixels to Opengl Coordinates: X Axis
-func XtoFloat(x, windowWidth int) float32 {
+func xToFloat(x, windowWidth int) float32 {
 	return float32(2.0)*(float32(x)/float32(windowWidth)) - float32(1.0)
 }
 
 // Converts Pixels to Opengl Coordinates: Y Axis
-func YtoFloat(y, windowHeight int) float32 {
+func yToFloat(y, windowHeight int) float32 {
 	return float32(1.0) - (float32(2.0) * float32(y) / float32(windowHeight))
 }
 

@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	BasicVertexShaderSource = `
+	basicVertexShaderSource = `
 		#version 410
 		in vec3 vp;
 		void main() {
@@ -16,7 +16,7 @@ const (
 		}
 	`
 
-	TextureVertexShaderSrc = `
+	textureVertexShaderSrc = `
 	#version 410
 
 	layout (location = 0) in vec3 position;
@@ -31,7 +31,7 @@ const (
 	}
 		`
 
-	TextureFragmentShaderSrc = `
+	textureFragmentShaderSrc = `
 		#version 410 core
 		in vec2 TexCoord;
 
@@ -47,7 +47,7 @@ const (
 	`
 )
 
-func CompileShader(source string, shaderType uint32) (uint32, error) {
+func compileShader(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
 
 	csources, free := gl.Strs(source + "\x00")
@@ -70,16 +70,16 @@ func CompileShader(source string, shaderType uint32) (uint32, error) {
 	return shader, nil
 }
 
-func MakeProgram(vertexShaderSource, fragmentShaderSource string) (uint32, uint32, uint32) {
+func makeProgram(vertexShaderSource, fragmentShaderSource string) (uint32, uint32, uint32) {
 	prog := gl.CreateProgram()
 
-	vertShader, err := CompileShader(vertexShaderSource, gl.VERTEX_SHADER)
+	vertShader, err := compileShader(vertexShaderSource, gl.VERTEX_SHADER)
 	if err != nil {
 		panic(err)
 	}
 	gl.AttachShader(prog, vertShader)
 
-	fragShader, err := CompileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
+	fragShader, err := compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
 	if err != nil {
 		panic(err)
 	}

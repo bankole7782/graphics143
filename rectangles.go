@@ -9,7 +9,7 @@ import (
 
 // You must have initialized glfw and gl before using this function
 func DrawImage(windowWidth, windowHeight int, img image.Image, imageRect Rect) {
-	imgProgram, shader1, shader2 := MakeProgram(TextureVertexShaderSrc, TextureFragmentShaderSrc)
+	imgProgram, shader1, shader2 := makeProgram(textureVertexShaderSrc, textureFragmentShaderSrc)
 	vertices, indices := imageCoordinates(windowWidth, windowHeight, imageRect)
 
 	VAO := makeImageVAO(vertices, indices)
@@ -65,11 +65,11 @@ func NewRect(x, y, w, h int) Rect {
 // the outputs of this is good for gl.DrawElements
 func rectangleToCoords2(windowWidth, windowHeight int, aRect Rect) ([]float32, []uint32) {
 
-	point1X := XtoFloat(aRect.OriginX, windowWidth)
-	point1Y := YtoFloat(aRect.OriginY, windowHeight)
+	point1X := xToFloat(aRect.OriginX, windowWidth)
+	point1Y := yToFloat(aRect.OriginY, windowHeight)
 
-	point2X := XtoFloat(aRect.OriginX+aRect.Width, windowWidth)
-	point2Y := YtoFloat(aRect.OriginY+aRect.Height, windowHeight)
+	point2X := xToFloat(aRect.OriginX+aRect.Width, windowWidth)
+	point2Y := yToFloat(aRect.OriginY+aRect.Height, windowHeight)
 
 	// retFloat32 := []float32{
 	// 	// first triangle
