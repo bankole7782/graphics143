@@ -24,7 +24,7 @@ const (
 	DoneBtn       = 104
 )
 
-var objCoords map[int]g143.RectSpecs
+var objCoords map[int]g143.Rect
 var currentWindowFrame image.Image
 var inputsStore map[string]string
 var activeEntryIndex int
@@ -34,7 +34,7 @@ var enteredTextAge string
 func main() {
 	runtime.LockOSThread()
 
-	objCoords = make(map[int]g143.RectSpecs)
+	objCoords = make(map[int]g143.Rect)
 	inputsStore = make(map[string]string)
 
 	window := g143.NewWindow(800, 600, "an inputs program (sample)", false)
@@ -79,7 +79,7 @@ func allDraws(window *glfw.Window) {
 	ggCtx.Fill()
 
 	// save valuable coordinates
-	prs := g143.RectSpecs{Width: 200, Height: 200, OriginX: 20, OriginY: 70}
+	prs := g143.Rect{Width: 200, Height: 200, OriginX: 20, OriginY: 70}
 	objCoords[ImagePicker] = prs
 
 	err = ggCtx.LoadFontFace("Roboto-Light.ttf", 20)
@@ -105,7 +105,7 @@ func allDraws(window *glfw.Window) {
 		ggCtx.DrawRectangle(iBoxX, iBoxY, float64(iBoxWidth), float64(iBoxHeight))
 		ggCtx.Fill()
 
-		ibrs := g143.RectSpecs{Width: iBoxWidth, Height: iBoxHeight, OriginX: int(iBoxX), OriginY: int(iBoxY)}
+		ibrs := g143.Rect{Width: iBoxWidth, Height: iBoxHeight, OriginX: int(iBoxX), OriginY: int(iBoxY)}
 		if i == 0 {
 			objCoords[TextEntryName] = ibrs
 		} else {
@@ -136,11 +136,11 @@ func allDraws(window *glfw.Window) {
 	btnTextX := btnBGX + float64(float64(btnBGWidth)-btnTextWidth)/2.0
 	ggCtx.DrawString(btnText, btnTextX, 300+40)
 
-	bgBtnTextRS := g143.RectSpecs{Width: btnBGWidth, Height: int(btnBGX), OriginY: 300}
+	bgBtnTextRS := g143.Rect{Width: btnBGWidth, Height: int(btnBGX), OriginY: 300}
 	objCoords[DoneBtn] = bgBtnTextRS
 
 	// send the frame to glfw window
-	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+	windowRS := g143.Rect{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 	window.SwapBuffers()
 
@@ -159,11 +159,11 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 
 	wWidth, wHeight := window.GetSize()
 
-	var widgetRS g143.RectSpecs
+	var widgetRS g143.Rect
 	var widgetCode int
 
 	for code, RS := range objCoords {
-		if g143.InRectSpecs(RS, xPosInt, yPosInt) {
+		if g143.InRect(RS, xPosInt, yPosInt) {
 			widgetRS = RS
 			widgetCode = code
 			break
@@ -191,7 +191,7 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 		ggCtx.DrawImage(img, widgetRS.OriginX+10, widgetRS.OriginY+10)
 
 		// send the frame to glfw window
-		windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+		windowRS := g143.Rect{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 		g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 		window.SwapBuffers()
 
@@ -229,7 +229,7 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 		ggCtx.Fill()
 
 		// send the frame to glfw window
-		windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+		windowRS := g143.Rect{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 		g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 		window.SwapBuffers()
 
@@ -260,7 +260,7 @@ func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Ac
 
 	wWidth, wHeight := window.GetSize()
 
-	var widgetRS g143.RectSpecs
+	var widgetRS g143.Rect
 	if activeEntryIndex == 1 {
 		widgetRS = objCoords[TextEntryName]
 	} else if activeEntryIndex == 2 {
@@ -300,7 +300,7 @@ func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Ac
 	}
 
 	// send the frame to glfw window
-	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+	windowRS := g143.Rect{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 	window.SwapBuffers()
 

@@ -20,12 +20,12 @@ const (
 	BEGIN_HEIGHT = 600
 )
 
-var objCoords map[int]g143.RectSpecs
+var objCoords map[int]g143.Rect
 
 func main() {
 	runtime.LockOSThread()
 
-	objCoords = make(map[int]g143.RectSpecs)
+	objCoords = make(map[int]g143.Rect)
 
 	window := g143.NewWindow(BEGIN_WIDTH, BEGIN_HEIGHT, "a resizable program sample", true)
 	allDraws(window)
@@ -82,7 +82,7 @@ func allDraws(window *glfw.Window) {
 		ggCtx.Fill()
 	}
 	// send the frame to glfw window
-	windowRS := g143.RectSpecs{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
+	windowRS := g143.Rect{Width: wWidth, Height: wHeight, OriginX: 0, OriginY: 0}
 	g143.DrawImage(wWidth, wHeight, ggCtx.Image(), windowRS)
 	window.SwapBuffers()
 }
@@ -103,11 +103,11 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 
 	// wWidth, wHeight := window.GetSize()
 
-	// var widgetRS g143.RectSpecs
+	// var widgetRS g143.Rect
 	var widgetCode int
 
 	for code, RS := range objCoords {
-		if g143.InRectSpecs(RS, xPosInt, yPosInt) {
+		if g143.InRect(RS, xPosInt, yPosInt) {
 			// widgetRS = RS
 			widgetCode = code
 			break

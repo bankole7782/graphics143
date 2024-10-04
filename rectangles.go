@@ -8,9 +8,9 @@ import (
 )
 
 // You must have initialized glfw and gl before using this function
-func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs RectSpecs) {
+func DrawImage(windowWidth, windowHeight int, img image.Image, imageRect Rect) {
 	imgProgram, shader1, shader2 := MakeProgram(TextureVertexShaderSrc, TextureFragmentShaderSrc)
-	vertices, indices := imageCoordinates(windowWidth, windowHeight, imageRectSpecs)
+	vertices, indices := imageCoordinates(windowWidth, windowHeight, imageRect)
 
 	VAO := makeImageVAO(vertices, indices)
 	texture0, err := newTexture(img, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
@@ -42,34 +42,34 @@ func DrawImage(windowWidth, windowHeight int, img image.Image, imageRectSpecs Re
 }
 
 // useful for mouse events
-func InRectSpecs(rectSpecs RectSpecs, xPos, yPos int) bool {
-	if (xPos > rectSpecs.OriginX) && (xPos < rectSpecs.Width+rectSpecs.OriginX) &&
-		(yPos > rectSpecs.OriginY) && (yPos < rectSpecs.Height+rectSpecs.OriginY) {
+func InRect(Rect Rect, xPos, yPos int) bool {
+	if (xPos > Rect.OriginX) && (xPos < Rect.Width+Rect.OriginX) &&
+		(yPos > Rect.OriginY) && (yPos < Rect.Height+Rect.OriginY) {
 		return true
 	}
 
 	return false
 }
 
-type RectSpecs struct {
+type Rect struct {
 	Width   int
 	Height  int
 	OriginX int
 	OriginY int
 }
 
-func NRectSpecs(x, y, w, h int) RectSpecs {
-	return RectSpecs{Width: w, Height: h, OriginX: x, OriginY: y}
+func NewRect(x, y, w, h int) Rect {
+	return Rect{Width: w, Height: h, OriginX: x, OriginY: y}
 }
 
 // the outputs of this is good for gl.DrawElements
-func rectangleToCoords2(windowWidth, windowHeight int, rectSpec RectSpecs) ([]float32, []uint32) {
+func rectangleToCoords2(windowWidth, windowHeight int, aRect Rect) ([]float32, []uint32) {
 
-	point1X := XtoFloat(rectSpec.OriginX, windowWidth)
-	point1Y := YtoFloat(rectSpec.OriginY, windowHeight)
+	point1X := XtoFloat(aRect.OriginX, windowWidth)
+	point1Y := YtoFloat(aRect.OriginY, windowHeight)
 
-	point2X := XtoFloat(rectSpec.OriginX+rectSpec.Width, windowWidth)
-	point2Y := YtoFloat(rectSpec.OriginY+rectSpec.Height, windowHeight)
+	point2X := XtoFloat(aRect.OriginX+aRect.Width, windowWidth)
+	point2Y := YtoFloat(aRect.OriginY+aRect.Height, windowHeight)
 
 	// retFloat32 := []float32{
 	// 	// first triangle
@@ -99,8 +99,8 @@ func rectangleToCoords2(windowWidth, windowHeight int, rectSpec RectSpecs) ([]fl
 }
 
 // the outputs of this is good for gl.DrawElements
-func imageCoordinates(windowWidth, windowHeight int, rectSpec RectSpecs) ([]float32, []uint32) {
-	tmpVertices, indices := rectangleToCoords2(windowWidth, windowHeight, rectSpec)
+func imageCoordinates(windowWidth, windowHeight int, aRect Rect) ([]float32, []uint32) {
+	tmpVertices, indices := rectangleToCoords2(windowWidth, windowHeight, aRect)
 	v1 := tmpVertices
 	// inject texture coordinates
 	vertices := []float32{
