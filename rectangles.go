@@ -43,16 +43,6 @@ func DrawImage(windowWidth, windowHeight int, img image.Image, imageRect Rect) {
 
 }
 
-// useful for mouse events
-func InRect(aRect Rect, xPos, yPos int) bool {
-	if (xPos > aRect.OriginX) && (xPos < aRect.Width+aRect.OriginX) &&
-		(yPos > aRect.OriginY) && (yPos < aRect.Height+aRect.OriginY) {
-		return true
-	}
-
-	return false
-}
-
 type Rect struct {
 	Width   int
 	Height  int
@@ -62,6 +52,16 @@ type Rect struct {
 
 func NewRect(x, y, w, h int) Rect {
 	return Rect{Width: w, Height: h, OriginX: x, OriginY: y}
+}
+
+// useful for mouse events
+func InRect(aRect Rect, xPos, yPos int) bool {
+	if (xPos > aRect.OriginX) && (xPos < aRect.Width+aRect.OriginX) &&
+		(yPos > aRect.OriginY) && (yPos < aRect.Height+aRect.OriginY) {
+		return true
+	}
+
+	return false
 }
 
 // the outputs of this is good for gl.DrawElements
