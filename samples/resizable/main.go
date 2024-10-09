@@ -9,7 +9,7 @@ import (
 
 	g143 "github.com/bankole7782/graphics143"
 	"github.com/fogleman/gg"
-	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
