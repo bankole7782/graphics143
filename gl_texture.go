@@ -6,8 +6,8 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
-	"github.com/disintegration/imaging"
 	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/kovidgoyal/imaging"
 	"github.com/pkg/errors"
 )
 
