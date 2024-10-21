@@ -1,8 +1,6 @@
 module github.com/bankole7782/graphics143
 
-go 1.21
-
-toolchain go1.23.2
+go 1.23
 
 require (
 	github.com/go-gl/gl v0.0.0-20211210172815-726fda9656d6

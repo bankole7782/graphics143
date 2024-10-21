@@ -4,7 +4,7 @@ import (
 	"image"
 	"unsafe"
 
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
 // DrawImage draws an image to a GLFW window.
