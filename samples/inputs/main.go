@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"runtime"
 	"time"
-	"os/exec"
 
 	_ "image/jpeg"
 	_ "image/png"
@@ -14,6 +12,7 @@ import (
 	"github.com/fogleman/gg"
 	"github.com/go-gl/glfw/v3.4/glfw"
 	"github.com/kovidgoyal/imaging"
+	"github.com/sqweek/dialog"
 )
 
 const (
@@ -33,15 +32,6 @@ var enteredTextName string
 var enteredTextAge string
 
 func main() {
-	if runtime.GOOS == "linux" {
-		_, err := exec.LookPath("fpicker")
-		if err != nil {
-			fmt.Println("You don't have fpicker in your path.")
-			fmt.Println("Please get it from https://github.com/saenuma/pickers")
-			return
-		}		
-	}
-
 	runtime.LockOSThread()
 
 	objCoords = make(map[int]g143.Rect)
@@ -187,8 +177,8 @@ func mouseBtnCallback(window *glfw.Window, button glfw.MouseButton, action glfw.
 	switch widgetCode {
 
 	case ImagePicker:
-		filename := PickImage()
-		if filename == "" {
+		filename, err := dialog.File().Filter("Passport file", "jpg").Load()
+		if err != nil {
 			return
 		}
 		inputsStore["passport"] = filename
