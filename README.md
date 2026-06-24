@@ -4,6 +4,3 @@
 
 a library that provides little functions with building your own widgets
 
-## Book Address
-
-View the whole book on (https://sae.ng/sr/gui126/intro)[sae.ng/sr/gui126]
