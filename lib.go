@@ -2,7 +2,7 @@ package graphics143
 
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
-	"github.com/go-gl/glfw/v3.3/glfw"
+	"github.com/go-gl/glfw/v3.4/glfw"
 )
 
 // Converts Pixels to Opengl Coordinates: X Axis
